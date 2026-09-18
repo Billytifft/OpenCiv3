@@ -49,6 +49,7 @@ namespace C7GameData {
 		public ExperienceLevel defaultExperienceLevel;
 		public Rules rules;
 		public TimeOptions timeOptions;
+		public Dictionary<string, List<HistTurnRecord>> history;
 
 		public BarbarianInfo barbarianInfo = new BarbarianInfo();
 
