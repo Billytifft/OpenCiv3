@@ -96,7 +96,7 @@ namespace C7GameData {
 			savData = new SavData(Util.ReadFile(savePath), defaultBicBytes);
 			biq = savData.Bic;
 			pediaIcons = new(getPediaIconsPath(biq.Game[0].ScenarioSearchFolders));
-			save.CivilopediaText = new CivilopediaText(getCivilopediaTextPath(biq.Game[0].ScenarioSearchFolders));
+			save.Codex = new Codex(getCivilopediaTextPath(biq.Game[0].ScenarioSearchFolders));
 			save.TurnNumber = savData.Game.TurnNumber;
 			save.Seed = savData.Wrld.WorldSeed;
 
@@ -260,7 +260,7 @@ namespace C7GameData {
 			biq = BiqData.LoadFile(biqPath);
 			defaultBiq = BiqData.LoadFile(defaultBiqPath);
 			pediaIcons = new(getPediaIconsPath(biq.Game[0].ScenarioSearchFolders));
-			save.CivilopediaText = new CivilopediaText(getCivilopediaTextPath(biq.Game[0].ScenarioSearchFolders));
+			save.Codex = new Codex(getCivilopediaTextPath(biq.Game[0].ScenarioSearchFolders));
 			save.Seed = biq.Wmap[0].MapSeed;
 
 			ImportSharedBiqData();

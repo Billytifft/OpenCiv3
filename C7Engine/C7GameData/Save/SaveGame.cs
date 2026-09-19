@@ -83,7 +83,7 @@ namespace C7GameData.Save {
 				History = data.history,
 				TerrainImprovements = data.terrainImprovements.ConvertAll(ti => ti.ToSaveTerrainImprovement()),
 				GameModeConfig = data.gameModeConfig,
-				CivilopediaText = data.Civilopedia,
+				Codex = data.Codex,
 			};
 			foreach (var saveCivilization in save.Civilizations) {
 				saveCivilization.cultureGroupKey = save.CultureGroups.First(c => c.name == saveCivilization.cultureGroup.name).name;
@@ -208,7 +208,7 @@ namespace C7GameData.Save {
 				timeOptions = TimeOptions,
 				history = History,
 				GreatWondersBuilt = GreatWondersBuilt,
-				Civilopedia = CivilopediaText,
+				Codex = Codex,
 			};
 
 			return data;
@@ -473,7 +473,7 @@ namespace C7GameData.Save {
 		// The parsed Civilopedia text. Not serialized; regenerated from the
 		// scenario search path on load.
 		[JsonIgnore]
-		public CivilopediaText CivilopediaText;
+		public Codex Codex;
 
 		public List<Difficulty> Difficulties = new();
 		public Difficulty GameDifficulty = new();
@@ -497,7 +497,7 @@ namespace C7GameData.Save {
 			// This lambda has side effects in the Game.cs code.
 			if (result.ScenarioSearchPath?.Count() > 0) {
 				getPediaIconsPath(result.ScenarioSearchPath);
-				result.CivilopediaText = new CivilopediaText(getCivilopediaTextPath(result.ScenarioSearchPath));
+				result.Codex = new Codex(getCivilopediaTextPath(result.ScenarioSearchPath));
 			}
 			return result;
 		}

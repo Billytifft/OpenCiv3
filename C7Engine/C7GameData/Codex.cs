@@ -7,34 +7,34 @@ using System.Text.RegularExpressions;
 using Serilog;
 
 namespace C7GameData {
-	public class CivilopediaPage {
+	public class CodexPage {
 		public string Title { get; set; }
 		public string Body { get; set; }
 	}
 
-	public class CivilopediaEntry {
+	public class CodexEntry {
 		public string Key { get; set; }
 		public string DisplayName { get; set; }
-		public List<CivilopediaPage> Pages { get; set; } = new();
+		public List<CodexPage> Pages { get; set; } = new();
 	}
 
-	public class CivilopediaText {
+	public class Codex {
 		private static readonly Encoding Windows1252;
 		private static readonly Regex LinkRegex = new(@"\$LINK<([^=<>]+)=([^>]+)>");
 
-		private static readonly ILogger log = Log.ForContext<CivilopediaText>();
+		private static readonly ILogger log = Log.ForContext<Codex>();
 
-		public Dictionary<string, CivilopediaEntry> Entries { get; } = new();
+		public Dictionary<string, CodexEntry> Entries { get; } = new();
 		public List<string> GameConceptKeys { get; } = new();
 
-		static CivilopediaText() {
+		static Codex() {
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 			Windows1252 = Encoding.GetEncoding(1252);
 		}
 
-		public CivilopediaText() { }
+		public Codex() { }
 
-		public CivilopediaText(string path) {
+		public Codex(string path) {
 			if (string.IsNullOrEmpty(path) || !File.Exists(path)) {
 				log.Warning($"Civilopedia text file '{path}' not found; Codex will show only game-generated content");
 				return;
@@ -44,17 +44,17 @@ namespace C7GameData {
 			ParseInto(content);
 		}
 
-		public static CivilopediaText Parse(string content) {
-			CivilopediaText civilopedia = new();
-			civilopedia.ParseInto(content);
-			return civilopedia;
+		public static Codex Parse(string content) {
+			Codex codex = new();
+			codex.ParseInto(content);
+			return codex;
 		}
 
-		public CivilopediaEntry GetEntry(string key) {
+		public CodexEntry GetEntry(string key) {
 			if (key is null) {
 				return null;
 			}
-			Entries.TryGetValue(key.Trim(), out CivilopediaEntry entry);
+			Entries.TryGetValue(key.Trim(), out CodexEntry entry);
 			return entry;
 		}
 
@@ -63,8 +63,8 @@ namespace C7GameData {
 				return;
 			}
 
-			CivilopediaEntry currentEntry = null;
-			CivilopediaPage currentPage = null;
+			CodexEntry currentEntry = null;
+			CodexPage currentPage = null;
 			List<string> currentParagraphLines = null;
 			bool inGameConceptKeys = false;
 
@@ -90,7 +90,7 @@ namespace C7GameData {
 
 					string key = header.StartsWith("DESC_") ? header.Substring(5).Trim() : header;
 					currentEntry = GetOrCreateEntry(key);
-					currentPage = new CivilopediaPage();
+					currentPage = new CodexPage();
 					currentEntry.Pages.Add(currentPage);
 					currentParagraphLines = null;
 					continue;
@@ -134,14 +134,14 @@ namespace C7GameData {
 			FlushParagraph(currentPage, ref currentParagraphLines);
 
 			foreach (string key in Entries.Keys.ToList()) {
-				CivilopediaEntry entry = Entries[key];
+				CodexEntry entry = Entries[key];
 				if (string.IsNullOrEmpty(entry.DisplayName) && entry.Pages.All(page => page.Title is null && string.IsNullOrEmpty(page.Body))) {
 					Entries.Remove(key);
 				}
 			}
 		}
 
-		private static void FlushParagraph(CivilopediaPage page, ref List<string> paragraphLines) {
+		private static void FlushParagraph(CodexPage page, ref List<string> paragraphLines) {
 			if (page is null || paragraphLines is null || paragraphLines.Count == 0) {
 				paragraphLines = null;
 				return;
@@ -159,10 +159,10 @@ namespace C7GameData {
 			paragraphLines = null;
 		}
 
-		private CivilopediaEntry GetOrCreateEntry(string key) {
+		private CodexEntry GetOrCreateEntry(string key) {
 			string trimmed = key.Trim();
-			if (!Entries.TryGetValue(trimmed, out CivilopediaEntry entry)) {
-				entry = new CivilopediaEntry { Key = trimmed };
+			if (!Entries.TryGetValue(trimmed, out CodexEntry entry)) {
+				entry = new CodexEntry { Key = trimmed };
 				Entries.Add(trimmed, entry);
 			}
 			return entry;

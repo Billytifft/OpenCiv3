@@ -12,7 +12,7 @@ using Xunit;
 
 namespace EngineTests.GameData;
 
-public class CivilopediaTextTest {
+public class CodexTest {
 	[Fact]
 	public void TestParseConvertsLinksToMarkdown() {
 		const string sample = """
@@ -27,8 +27,8 @@ public class CivilopediaTextTest {
 		several lines and should be rejoined as one paragraph.
 		""";
 
-		CivilopediaText civilopedia = CivilopediaText.Parse(sample);
-		CivilopediaEntry entry = civilopedia.GetEntry("TECH_Advanced_Flight");
+		Codex codex = Codex.Parse(sample);
+		CodexEntry entry = codex.GetEntry("TECH_Advanced_Flight");
 
 		Assert.NotNull(entry);
 		Assert.Single(entry.Pages);
@@ -51,8 +51,8 @@ public class CivilopediaTextTest {
 		^A city with a Barracks can be used to upgrade ground units.
 		""";
 
-		CivilopediaText civilopedia = CivilopediaText.Parse(sample);
-		CivilopediaEntry entry = civilopedia.GetEntry("BLDG_Barracks");
+		Codex codex = Codex.Parse(sample);
+		CodexEntry entry = codex.GetEntry("BLDG_Barracks");
 
 		Assert.NotNull(entry);
 		Assert.Single(entry.Pages);
@@ -72,8 +72,8 @@ public class CivilopediaTextTest {
 		^Press a number key to center the map on that unit.
 		""";
 
-		CivilopediaText civilopedia = CivilopediaText.Parse(sample);
-		CivilopediaEntry entry = civilopedia.GetEntry("GCON_Hotkeys_Units");
+		Codex codex = Codex.Parse(sample);
+		CodexEntry entry = codex.GetEntry("GCON_Hotkeys_Units");
 
 		Assert.NotNull(entry);
 		Assert.Equal("Unit Hotkeys", entry.DisplayName);
@@ -91,11 +91,11 @@ public class CivilopediaTextTest {
 		^Barbarian units can capture workers.
 		""";
 
-		CivilopediaText civilopedia = CivilopediaText.Parse(sample);
-		CivilopediaEntry entry = civilopedia.GetEntry("GCON_Enslavement ");
+		Codex codex = Codex.Parse(sample);
+		CodexEntry entry = codex.GetEntry("GCON_Enslavement ");
 
 		Assert.NotNull(entry);
-		Assert.Single(civilopedia.Entries);
+		Assert.Single(codex.Entries);
 	}
 
 	[Fact]
@@ -107,8 +107,8 @@ public class CivilopediaTextTest {
 		^Warriors may $LINK<enslave=GCON_Enslavement >.
 		""";
 
-		CivilopediaText civilopedia = CivilopediaText.Parse(sample);
-		CivilopediaEntry entry = civilopedia.GetEntry("GCON_Enslavement");
+		Codex codex = Codex.Parse(sample);
+		CodexEntry entry = codex.GetEntry("GCON_Enslavement");
 
 		Assert.NotNull(entry);
 		Assert.Contains("[enslave](key:GCON_Enslavement)", entry.Pages[0].Body);
@@ -130,28 +130,28 @@ public class CivilopediaTextTest {
 		^Combat resolves attacks.
 		""";
 
-		CivilopediaText civilopedia = CivilopediaText.Parse(sample);
+		Codex codex = Codex.Parse(sample);
 
-		Assert.Contains("GCON_Corruption", civilopedia.GameConceptKeys);
-		Assert.Contains("GCON_Combat", civilopedia.GameConceptKeys);
-		Assert.NotNull(civilopedia.GetEntry("GCON_Combat"));
-		Assert.Null(civilopedia.GetEntry("GAME_CONCEPTS"));
+		Assert.Contains("GCON_Corruption", codex.GameConceptKeys);
+		Assert.Contains("GCON_Combat", codex.GameConceptKeys);
+		Assert.NotNull(codex.GetEntry("GCON_Combat"));
+		Assert.Null(codex.GetEntry("GAME_CONCEPTS"));
 	}
 
 	[Fact]
 	public void TestParseWindows1252Characters() {
 		Encoding windows1252 = Encoding.GetEncoding(1252);
 		byte[] bytes = windows1252.GetBytes("#GCON_Test\nConcept\n^\n^Dash \u2019 and \u201Cquote\u201D and \u00C0.\n");
-		CivilopediaText civilopedia = CivilopediaText.Parse(windows1252.GetString(bytes));
+		Codex codex = Codex.Parse(windows1252.GetString(bytes));
 
-		Assert.NotNull(civilopedia.GetEntry("GCON_Test"));
-		Assert.Contains("\u2019 and \u201Cquote\u201D and \u00C0", civilopedia.GetEntry("GCON_Test").Pages[0].Body);
+		Assert.NotNull(codex.GetEntry("GCON_Test"));
+		Assert.Contains("\u2019 and \u201Cquote\u201D and \u00C0", codex.GetEntry("GCON_Test").Pages[0].Body);
 	}
 
 	[Fact]
 	public void TestMissingEntryReturnsNull() {
-		CivilopediaText civilopedia = CivilopediaText.Parse("");
-		Assert.Null(civilopedia.GetEntry("TECH_Nonexistent"));
+		Codex codex = Codex.Parse("");
+		Assert.Null(codex.GetEntry("TECH_Nonexistent"));
 	}
 
 	[Fact]
@@ -162,8 +162,8 @@ public class CivilopediaTextTest {
 		^Body text.
 		""";
 
-		CivilopediaText civilopedia = CivilopediaText.Parse(sample);
-		CivilopediaEntry entry = civilopedia.GetEntry("TECH_Test");
+		Codex codex = Codex.Parse(sample);
+		CodexEntry entry = codex.GetEntry("TECH_Test");
 
 		Assert.NotNull(entry);
 		Assert.Null(entry.DisplayName);
@@ -189,8 +189,8 @@ public class CivilopediaTextTest {
 			realm => Path.Combine(getTextPath(realm), "PediaIcons.txt"),
 			realm => Path.Combine(Civ3Location.GetCiv3Path(), "Conquests", "Text", "Civilopedia.txt"));
 
-		CivilopediaText civilopedia = save.CivilopediaText;
-		Assert.NotNull(civilopedia);
+		Codex codex = save.Codex;
+		Assert.NotNull(codex);
 		Assert.NotEmpty(save.UnitPrototypes);
 		Assert.NotEmpty(save.Buildings);
 		Assert.NotEmpty(save.Civilizations);
@@ -198,7 +198,7 @@ public class CivilopediaTextTest {
 		int resolvedUnits = 0;
 		foreach (SaveUnitPrototype proto in save.UnitPrototypes) {
 			Assert.NotEmpty(proto.civilopediaEntry);
-			if (civilopedia.GetEntry(proto.civilopediaEntry) is not null) {
+			if (codex.GetEntry(proto.civilopediaEntry) is not null) {
 				resolvedUnits++;
 			}
 		}
@@ -210,10 +210,10 @@ public class CivilopediaTextTest {
 		}
 
 		Assert.True(resolvedUnits > save.UnitPrototypes.Count / 2, "most units should resolve to a civilopedia entry");
-		Assert.NotNull(civilopedia.GetEntry("PRTO_Settler"));
-		Assert.NotNull(civilopedia.GetEntry("BLDG_Barracks"));
-		Assert.NotNull(civilopedia.GetEntry("RACE_AMERICAN"));
-		Assert.Null(civilopedia.GetEntry("PRTO_Fire_Catapult"));
+		Assert.NotNull(codex.GetEntry("PRTO_Settler"));
+		Assert.NotNull(codex.GetEntry("BLDG_Barracks"));
+		Assert.NotNull(codex.GetEntry("RACE_AMERICAN"));
+		Assert.Null(codex.GetEntry("PRTO_Fire_Catapult"));
 	}
 
 	[SkippableFact]
@@ -221,26 +221,26 @@ public class CivilopediaTextTest {
 		Skip.If(Civ3TestData.ShouldSkipCiv3DependentTests(), "No Civ3 install found.");
 
 		string path = Path.Combine(Civ3Location.GetCiv3Path(), "Conquests", "Text", "Civilopedia.txt");
-		CivilopediaText civilopedia = new CivilopediaText(path);
+		Codex codex = new Codex(path);
 
-		Assert.NotEmpty(civilopedia.Entries);
-		Assert.True(civilopedia.Entries.Count > 400, $"parsed {civilopedia.Entries.Count} entries");
-		Assert.NotEmpty(civilopedia.GameConceptKeys);
-		Assert.NotNull(civilopedia.GetEntry("TECH_Advanced_Flight"));
-		Assert.NotNull(civilopedia.GetEntry("PRTO_Settler"));
-		Assert.NotNull(civilopedia.GetEntry("GCON_Enslavement"));
-		Assert.Equal("Enslavement", civilopedia.GetEntry("GCON_Enslavement").DisplayName);
-		Assert.NotNull(civilopedia.GetEntry("RACE_AMERICAN"));
+		Assert.NotEmpty(codex.Entries);
+		Assert.True(codex.Entries.Count > 400, $"parsed {codex.Entries.Count} entries");
+		Assert.NotEmpty(codex.GameConceptKeys);
+		Assert.NotNull(codex.GetEntry("TECH_Advanced_Flight"));
+		Assert.NotNull(codex.GetEntry("PRTO_Settler"));
+		Assert.NotNull(codex.GetEntry("GCON_Enslavement"));
+		Assert.Equal("Enslavement", codex.GetEntry("GCON_Enslavement").DisplayName);
+		Assert.NotNull(codex.GetEntry("RACE_AMERICAN"));
 
-		Assert.Contains("[Workers](key:PRTO_Worker)", civilopedia.GetEntry("TECH_Advanced_Flight").Pages[0].Body);
-		Assert.DoesNotContain("$LINK", civilopedia.GetEntry("TECH_Advanced_Flight").Pages[0].Body);
+		Assert.Contains("[Workers](key:PRTO_Worker)", codex.GetEntry("TECH_Advanced_Flight").Pages[0].Body);
+		Assert.DoesNotContain("$LINK", codex.GetEntry("TECH_Advanced_Flight").Pages[0].Body);
 
-		CivilopediaEntry hotkeys = civilopedia.GetEntry("GCON_Hotkeys_Units");
+		CodexEntry hotkeys = codex.GetEntry("GCON_Hotkeys_Units");
 		Assert.NotNull(hotkeys);
 		Assert.True(hotkeys.Pages.Count > 1);
 		Assert.Equal("General Unit Commands", hotkeys.Pages[1].Title);
 
-		Assert.DoesNotContain(civilopedia.Entries.Keys, key => key != key.Trim());
-		Assert.False(civilopedia.Entries.ContainsKey("GAME_CONCEPTS"));
+		Assert.DoesNotContain(codex.Entries.Keys, key => key != key.Trim());
+		Assert.False(codex.Entries.ContainsKey("GAME_CONCEPTS"));
 	}
 }
