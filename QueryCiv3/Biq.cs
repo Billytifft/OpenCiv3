@@ -73,7 +73,7 @@ namespace QueryCiv3 {
 		internal const int RACE_LEN_3 =  208;
 		internal const int RACE_LEN_4 =   92;
 		internal const int CITY_LEN_1 =   38;
-		internal const int CITY_LEN_2 =   32; // On-disk records have 4 more trailing bytes per city than this (36); they are skipped by the +4 advance below
+		internal const int CITY_LEN_2 =   32;
 		internal const int WMAP_LEN_1 =    8;
 		internal const int WMAP_LEN_2 =  164;
 		internal const int PRTO_LEN_1 =  238;
@@ -138,11 +138,6 @@ namespace QueryCiv3 {
 							City = new CITY[count];
 							CityBuilding = new int[count][];
 							int buildingRowLength = 0;
-							// On-disk records are 38 + 4 bytes per building + 36, but the CITY struct is only 70 bytes
-							// (CITY_LEN_1 + CITY_LEN_2 == sizeof(CITY)). Copying the full 36-byte tail would write
-							// 4 bytes past the struct's backing memory (into the next array element, or past the array
-							// end for the last city), corrupting the GC heap. CITY_LEN_2 is the struct-modeled tail;
-							// the 4 trailing on-disk bytes per record are skipped by the +4 below.
 
 							fixed (void* ptr = City) {
 								byte* cityPtr = (byte*)ptr;
