@@ -378,14 +378,14 @@ namespace C7GameData {
 			foreach (SaveUnit unit in save.Units) {
 				SavePlayer player = playerLookup[unit.owner];
 				player.tileKnowledge.Add(unit.currentLocation);
-				foreach (TileDirection direction in Enum.GetValues(typeof(TileDirection))) {
+				foreach (TileDirection direction in TileDirectionExtensions.All) {
 					player.tileKnowledge.Add(Tile.NeighborCoordinate(unit.currentLocation, direction));
 				}
 			}
 			foreach (SaveCity city in save.Cities) {
 				SavePlayer player = playerLookup[city.owner];
 				player.tileKnowledge.Add(city.location);
-				foreach (TileDirection direction in Enum.GetValues(typeof(TileDirection))) {
+				foreach (TileDirection direction in TileDirectionExtensions.All) {
 					player.tileKnowledge.Add(Tile.NeighborCoordinate(city.location, direction));
 				}
 			}
