@@ -65,6 +65,11 @@ namespace C7GameData {
 
 		public List<string> cityNames = new List<string>();
 
+		// The pool of scientific-leader names for this civ, from
+		// RACE.NumberOfScientificLeaders + the per-civ name array. Empty in
+		// standalone mode; phase 2 falls back to a literal "Scientific Leader".
+		public List<string> scientificLeaderNames = new List<string>();
+
 		// The IDs of all the techs that this civ starts with.
 		public HashSet<ID> startingTechs = new();
 

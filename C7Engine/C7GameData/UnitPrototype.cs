@@ -25,6 +25,11 @@ namespace C7GameData {
 	public struct ItemContext(UnitPrototype proto, Player player) {
 		public UnitPrototype proto = proto;
 		public Player player = player;
+
+		// Set when the icon represents a specific on-map unit (e.g. a Great
+		// Leader) rather than a generic prototype. Lets art lookup honour the
+		// unit's leaderKind for variations like "SCI".
+		public MapUnit unit;
 	}
 
 	// A container for all the art for this unit

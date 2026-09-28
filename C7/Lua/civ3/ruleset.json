@@ -11233,7 +11233,12 @@
     "shieldCostPerGold": 4,
     "shieldRateForDisbanding": 0.25,
     "allowLesserUnitProduction": false,
-    "radarTileVisibility": 2
+    "radarTileVisibility": 2,
+    "allowScientificLeaders": true,
+    "goldenAgeDuration": 20,
+    "scientificLeaderChance": 0.03,
+    "scientificTraitLeaderChance": 0.05,
+    "maximumLeadersPerType": 1
   },
   "timeOptions": {
     "baseUnit": "years",

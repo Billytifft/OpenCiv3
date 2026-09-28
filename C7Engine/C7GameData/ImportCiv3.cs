@@ -83,6 +83,7 @@ namespace C7GameData {
 			ImportGovernments();
 			ImportDifficulties();
 			ImportRules();
+			ImportGameOptions();
 		}
 
 		public static SaveGame ImportSav(string savePath, string defaultBicPath, Func<string, string> getPediaIconsPath) {
@@ -503,6 +504,9 @@ namespace C7GameData {
 				};
 				foreach (RACE_City city in theBiq.RaceCityName[i]) {
 					civ.cityNames.Add(city.Name);
+				}
+				foreach (RACE_LeaderName leaderName in theBiq.RaceScientificLeaderName[i]) {
+					civ.scientificLeaderNames.Add(leaderName.Name);
 				}
 				civ.traits = LoadCivTraits(race).ToHashSet();
 				civ.cultureGroupKey = GetCultureGroupIdentifier(race.CultureGroup);
@@ -2059,6 +2063,18 @@ namespace C7GameData {
 			save.Rules.ShieldRateForDisbanding = 0.25f;
 			save.Rules.AllowLesserUnitProduction = false;
 			save.Rules.RadarTileVisibility = 2;
+			save.Rules.GoldenAgeDuration = rule.GoldenAgeDuration;
+		}
+
+		// The GAME section holds game-level toggles (not RULE data). A SAV's own
+		// GAME section carries the live game state, so it is authoritative when
+		// importing a SAV; otherwise read the scenario's BIQ GAME section.
+		private void ImportGameOptions() {
+			if (savData is not null) {
+				save.Rules.AllowScientificLeaders = savData.Game.AllowScientificLeaders;
+			} else {
+				save.Rules.AllowScientificLeaders = biq.Game[0].AllowScientificLeaders;
+			}
 		}
 
 		private static void SetWorldWrap(SavData civ3Save, SaveGame save) {
