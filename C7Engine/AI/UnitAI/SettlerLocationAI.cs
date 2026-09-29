@@ -8,9 +8,6 @@ namespace C7Engine {
 		private static readonly Serilog.ILogger Log = Serilog.Log.ForContext<SettlerLocationAI>();
 
 		//Figures out where to plant Settlers.
-		//Tiles that a settler failed to reach (e.g. a rival unit parked on them,
-		//issue #213) can be passed in to keep them from being picked for the
-		//current AI pass.
 		public static Tile FindSettlerLocation(Tile start, Player player, HashSet<Tile> excludedTiles = null) {
 			Dictionary<Tile, float> scores = GetScoredSettlerCandidates(start, player, excludedTiles);
 			if (scores.Count == 0 || scores.Values.Max() <= 0) {
@@ -33,9 +30,7 @@ namespace C7Engine {
 			Dictionary<Tile, float> scores = new();
 			var memo = new Dictionary<string, float>();
 
-			// A foreign unit on a tile doesn't reject it up front: the unit may
-			// move away before the settler arrives. Only tiles the settler failed
-			// to actually reach (issue #213) are excluded, for the current AI pass.
+			// Only tiles the settler failed to reach (issue #213) are excluded.
 			candidates = candidates.Where(t => !SettlerAlreadyMovingTowardsTile(t, playerSettlers) && t.IsAllowCities() && (excludedTiles == null || !excludedTiles.Contains(t)));
 
 			foreach (Tile t in candidates) {

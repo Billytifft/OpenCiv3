@@ -67,10 +67,6 @@ namespace C7Engine {
 					} else {
 						C7GameData.UnitAI.MoveResult moveResult = this.TryToMoveAlongPath(unit, ref data.pathToDestination);
 						if (moveResult.Result == C7GameData.UnitAI.Result.Error) {
-							// We tried to build here but could not reach it (e.g. a
-							// rival unit parked on the destination, issue #213).
-							// Pick a different destination instead of re-evaluating
-							// the same impossible task forever.
 							return FindNewDestination(unit, player);
 						}
 						return moveResult;
@@ -108,15 +104,10 @@ namespace C7Engine {
 			return "SettlerAI: " + data.ToString();
 		}
 
-		// Called when the settler failed to reach its current destination (issue
-		// #213, e.g. a rival unit parked on it). Excludes that tile for the
-		// current AI pass and picks a new destination the settler can reach. If
-		// nothing is left, falls back to JOIN_CITY instead of re-evaluating the
-		// same impossible task every turn.
+		// The destination became unreachable (issue #213); pick a new one, or
+		// fall back to JOIN_CITY if nothing is left.
+		// TODO: prefer path-checking at selection time over exclude-and-repick.
 		public C7GameData.UnitAI.MoveResult FindNewDestination(MapUnit unit, Player player) {
-			// TODO: excluding-and-repicking is a stopgap for #213. The longer-term
-			// fix is path-checking at selection time (see the TODO in MakeAiData)
-			// or scoring that discounts currently-unreachable tiles by distance.
 			data.unreachableDestinations.Add(data.destination);
 			log.Information($"Settler {unit.id} cannot reach {data.destination}, retargeting");
 
@@ -131,8 +122,7 @@ namespace C7Engine {
 				log.Information($"Settler {unit.id} retargeting from an unreachable tile to {newDestination}");
 			}
 
-			// Consume movement so PlayTurn doesn't immediately re-attempt the
-			// (still unreachable) old move within the same turn.
+			// Consume movement so PlayTurn does not retry the failed move this turn.
 			unit.movementPoints.onConsumeAll();
 			return C7GameData.UnitAI.Result.InProgress;
 		}

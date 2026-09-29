@@ -27,10 +27,7 @@ namespace C7GameData.AIData {
 		public TilePath pathToDestination;
 		public MapUnit escort;
 
-		// Destinations this settler tried to build on but could not reach
-		// (e.g. a rival unit parked on them, issue #213). Scoped to the current
-		// AI pass: a fresh SettlerAIData forgets them, so a tile whose blocker
-		// moves away is eligible again later.
+		// Tiles the settler could not reach (issue #213). Cleared when the AI is re-created.
 		public HashSet<Tile> unreachableDestinations = new();
 
 		public override string ToString() {
