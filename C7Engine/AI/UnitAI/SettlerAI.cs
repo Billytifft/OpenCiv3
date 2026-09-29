@@ -114,6 +114,9 @@ namespace C7Engine {
 		// nothing is left, falls back to JOIN_CITY instead of re-evaluating the
 		// same impossible task every turn.
 		public C7GameData.UnitAI.MoveResult FindNewDestination(MapUnit unit, Player player) {
+			// TODO: excluding-and-repicking is a stopgap for #213. The longer-term
+			// fix is path-checking at selection time (see the TODO in MakeAiData)
+			// or scoring that discounts currently-unreachable tiles by distance.
 			data.unreachableDestinations.Add(data.destination);
 			log.Information($"Settler {unit.id} cannot reach {data.destination}, retargeting");
 
