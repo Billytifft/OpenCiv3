@@ -65,7 +65,15 @@ namespace C7Engine {
 						unit.movementPoints.onConsumeAll();
 						return C7GameData.UnitAI.Result.InProgress;
 					} else {
-						return this.TryToMoveAlongPath(unit, ref data.pathToDestination);
+						C7GameData.UnitAI.MoveResult moveResult = this.TryToMoveAlongPath(unit, ref data.pathToDestination);
+						if (moveResult.Result == C7GameData.UnitAI.Result.Error) {
+							// We tried to build here but could not reach it (e.g. a
+							// rival unit parked on the destination, issue #213).
+							// Pick a different destination instead of re-evaluating
+							// the same impossible task forever.
+							return FindNewDestination(unit, player);
+						}
+						return moveResult;
 					}
 					break;
 				case SettlerAIData.SettlerGoal.JOIN_CITY:
@@ -98,6 +106,32 @@ namespace C7Engine {
 
 		public string SummarizePlan() {
 			return "SettlerAI: " + data.ToString();
+		}
+
+		// Called when the settler failed to reach its current destination (issue
+		// #213, e.g. a rival unit parked on it). Excludes that tile for the
+		// current AI pass and picks a new destination the settler can reach. If
+		// nothing is left, falls back to JOIN_CITY instead of re-evaluating the
+		// same impossible task every turn.
+		public C7GameData.UnitAI.MoveResult FindNewDestination(MapUnit unit, Player player) {
+			data.unreachableDestinations.Add(data.destination);
+			log.Information($"Settler {unit.id} cannot reach {data.destination}, retargeting");
+
+			Tile newDestination = SettlerLocationAI.FindSettlerLocation(unit.location, player, data.unreachableDestinations);
+			if (newDestination == Tile.NONE) {
+				data.goal = SettlerAIData.SettlerGoal.JOIN_CITY;
+				log.Information($"Settler {unit.id} has no reachable destination left, joining a city instead");
+			} else {
+				data.destination = newDestination;
+				PathingAlgorithm algorithm = PathingAlgorithmChooser.GetAlgorithm(unit);
+				data.pathToDestination = algorithm.PathFrom(unit.location, newDestination, unit);
+				log.Information($"Settler {unit.id} retargeting from an unreachable tile to {newDestination}");
+			}
+
+			// Consume movement so PlayTurn doesn't immediately re-attempt the
+			// (still unreachable) old move within the same turn.
+			unit.movementPoints.onConsumeAll();
+			return C7GameData.UnitAI.Result.InProgress;
 		}
 	}
 }

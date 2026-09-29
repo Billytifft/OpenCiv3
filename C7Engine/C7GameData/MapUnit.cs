@@ -600,7 +600,7 @@ namespace C7GameData {
 			}
 			return false;
 		}
-		internal static bool HasForeignUnits(Tile tile, Player player) {
+		private static bool HasForeignUnits(Tile tile, Player player) {
 			foreach (MapUnit other in tile.unitsOnTile) {
 				if (player != other.owner)
 					return true;

@@ -7,9 +7,12 @@ namespace C7Engine {
 	public class SettlerLocationAI {
 		private static readonly Serilog.ILogger Log = Serilog.Log.ForContext<SettlerLocationAI>();
 
-		//Figures out where to plant Settlers
-		public static Tile FindSettlerLocation(Tile start, Player player) {
-			Dictionary<Tile, float> scores = GetScoredSettlerCandidates(start, player);
+		//Figures out where to plant Settlers.
+		//Tiles that a settler failed to reach (e.g. a rival unit parked on them,
+		//issue #213) can be passed in to keep them from being picked for the
+		//current AI pass.
+		public static Tile FindSettlerLocation(Tile start, Player player, HashSet<Tile> excludedTiles = null) {
+			Dictionary<Tile, float> scores = GetScoredSettlerCandidates(start, player, excludedTiles);
 			if (scores.Count == 0 || scores.Values.Max() <= 0) {
 				return Tile.NONE;   //nowhere to settle
 			}
@@ -18,20 +21,22 @@ namespace C7Engine {
 			return result;
 		}
 
-		public static Dictionary<Tile, float> GetScoredSettlerCandidates(Tile start, Player player) {
+		public static Dictionary<Tile, float> GetScoredSettlerCandidates(Tile start, Player player, HashSet<Tile> excludedTiles = null) {
 			List<MapUnit> playerUnits = player.units;
 			// TODO: handle settling other continents
 			IEnumerable<Tile> candidates = player.tileKnowledge.AllKnownTiles().Where(t => !IsInvalidCityLocation(t) && t.continent == start.continent);
-			Dictionary<Tile, float> scores = AssignTileScores(start, player, candidates, playerUnits.FindAll(u => u.unitType.name == "Settler"));
+			Dictionary<Tile, float> scores = AssignTileScores(start, player, candidates, playerUnits.FindAll(u => u.unitType.name == "Settler"), excludedTiles);
 			return scores;
 		}
 
-		private static Dictionary<Tile, float> AssignTileScores(Tile startTile, Player player, IEnumerable<Tile> candidates, List<MapUnit> playerSettlers) {
+		private static Dictionary<Tile, float> AssignTileScores(Tile startTile, Player player, IEnumerable<Tile> candidates, List<MapUnit> playerSettlers, HashSet<Tile> excludedTiles = null) {
 			Dictionary<Tile, float> scores = new();
 			var memo = new Dictionary<string, float>();
 
-			// A settler can't build where a foreign unit is parked, so don't pick those tiles.
-			candidates = candidates.Where(t => !SettlerAlreadyMovingTowardsTile(t, playerSettlers) && t.IsAllowCities() && !MapUnit.HasForeignUnits(t, player));
+			// A foreign unit on a tile doesn't reject it up front: the unit may
+			// move away before the settler arrives. Only tiles the settler failed
+			// to actually reach (issue #213) are excluded, for the current AI pass.
+			candidates = candidates.Where(t => !SettlerAlreadyMovingTowardsTile(t, playerSettlers) && t.IsAllowCities() && (excludedTiles == null || !excludedTiles.Contains(t)));
 
 			foreach (Tile t in candidates) {
 				float score = GetTileYieldScore(t, player, memo);
