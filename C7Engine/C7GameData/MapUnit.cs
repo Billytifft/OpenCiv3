@@ -57,10 +57,6 @@ namespace C7GameData {
 
 		public UnitAI currentAI;
 
-		// Distinguishes Great Leader units. A Scientific leader resolves its art
-		// from the "SCI" variation rather than an era-specific one.
-		public LeaderKind leaderKind = LeaderKind.None;
-
 		public MapUnit(ID id) {
 			this.id = id;
 		}
@@ -142,10 +138,9 @@ namespace C7GameData {
 						return this.unitType.art.mainArt.variations.First(s => s.Key.EndsWith("SLAVE")).Value;
 				}
 
-				// Scientific leaders have a single shared art set ("SCI"),
-				// regardless of era. Military leaders use the era variation
-				// below, which is their per-era set.
-				if (this.leaderKind == LeaderKind.Scientific) {
+				// A scientific leader has one shared art set ("SCI") rather than a
+				// per-era one.
+				if (this.unitType.HasAttribute(UnitPrototype.SCIENTIFIC_LEADER_ATTRIBUTE)) {
 					if (this.unitType.art.mainArt.variations.TryGetValue(ScientificLeaderArtKey, out string sciArt))
 						return sciArt;
 				}

@@ -8,9 +8,7 @@ local unit_icons = {
   },
 }
 
-local LeaderKind = ENUMS.LeaderKind
-
--- Context - ItemContext (UnitPrototype proto, Player player, MapUnit unit = nil)
+-- Context - ItemContext (UnitPrototype proto, Player player)
 function unit_icons:map_object_to_sprite(context)
   local proto = context.proto
   local player = context.player
@@ -28,8 +26,7 @@ function unit_icons:map_object_to_sprite(context)
   local key = player.eraCivilopediaName
 
   -- Scientific leaders have a single shared icon ("SCI") regardless of era.
-  -- The context only carries a unit when a specific map unit is the subject.
-  if (context.unit ~= nil and context.unit.leaderKind == LeaderKind.Scientific) then
+  if (proto:HasAttribute("scientificLeader")) then
     key = "SCI"
   end
 

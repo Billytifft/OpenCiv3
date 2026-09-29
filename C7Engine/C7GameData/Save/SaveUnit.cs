@@ -25,10 +25,6 @@ namespace C7GameData.Save {
 		// and automated exploring.
 		public bool isAutomated;
 
-		// Null for ordinary units so their JSON stays clean (a missing entry
-		// deserializes to LeaderKind.None on load).
-		public LeaderKind? leaderKind;
-
 		public SaveUnit() { }
 
 		public SaveUnit(MapUnit unit) {
@@ -53,7 +49,6 @@ namespace C7GameData.Save {
 			movePointsRemaining = unit.movementPoints.remaining;
 			WorkerProgressTowardsJob = unit.WorkerProgressTowardsJob;
 			WorkerJob = unit.WorkerJob?.Id;
-			leaderKind = unit.leaderKind == LeaderKind.None ? null : unit.leaderKind;
 		}
 
 
@@ -74,7 +69,6 @@ namespace C7GameData.Save {
 				facingDirection = facingDirection,
 				WorkerProgressTowardsJob = WorkerProgressTowardsJob,
 				WorkerJob = WorkerJob == null ? null:terraforms.Find(tf => tf.Id == WorkerJob),
-				leaderKind = leaderKind ?? LeaderKind.None,
 			};
 			unit.location.unitsOnTile.Add(unit);
 			unit.movementPoints.reset(movePointsRemaining);

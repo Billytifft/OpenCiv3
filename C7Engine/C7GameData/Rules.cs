@@ -25,26 +25,16 @@ namespace C7GameData {
 		public bool AllowLesserUnitProduction; // for example, allow building a Spearman/Pikeman when we can build a Musketman (simultaneously)
 		public int RadarTileVisibility; // how many tiles, a unit with the Radar ability, can see ahead
 
-		// Whether scientific leaders (Great Scientists) can appear at all in this
-		// game. Read from the BIQ/SAV GAME section when importing; standalone mode
-		// defaults to enabled, matching vanilla Civ3.
 		public bool AllowScientificLeaders = true;
-
-		// The length of an Age of Science (and a Golden Age), in turns, taken from
-		// Rule.GoldenAgeDuration when importing. Ages of Science and Golden Ages
-		// stay in step because they share the value.
 		public int GoldenAgeDuration;
 
-		// Chance, as a fraction, that researching a technology first produces a
-		// Scientific leader. No such field exists in the BIQ, so these are plain
-		// configurable data seeded with the community-sourced Civ3 figures (3% base,
-		// 5% for a civ with the Scientific trait) per Discussion #243.
+		// Chance of a Scientific leader appearing when a technology is
+		// researched. Community-sourced Civ3 figures, not read from the BIQ.
 		public float ScientificLeaderChance = .03f;
 		public float ScientificTraitLeaderChance = .05f;
 
-		// The maximum number of leaders a civilization may hold of each type at
-		// once. The two leader types gate independently (D5): a Scientific leader
-		// does not block a Military one, and vice versa.
-		public int MaximumLeadersPerType = 1;
+		// The two leader types gate independently, so each gets its own cap.
+		public int MaxScientificLeaders = 2;
+		public int MaxMilitaryLeaders = 1;
 	}
 }

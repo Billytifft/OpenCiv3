@@ -83,7 +83,7 @@ namespace C7GameData {
 			ImportGovernments();
 			ImportDifficulties();
 			ImportRules();
-			ImportGameOptions();
+			ImportAllowScientificLeaders();
 		}
 
 		public static SaveGame ImportSav(string savePath, string defaultBicPath, Func<string, string> getPediaIconsPath) {
@@ -1409,6 +1409,13 @@ namespace C7GameData {
 				if (prto.LethalLandBombardment) prototype.flags.Add(SaveUnitPrototype.Flag.LethalLandBombardment);
 				if (prto.LethalSeaBombardment) prototype.flags.Add(SaveUnitPrototype.Flag.LethalSeaBombardment);
 				if (prto.Radar) prototype.flags.Add(SaveUnitPrototype.Flag.Radar);
+				// One "Leader" prototype covers both leader roles, so only the
+				// military kind is tagged; see the ScienceAge bit question in
+				// doc/agent/design/scientific-leaders.md.
+				if (prto.Leader) {
+					prototype.flags.Add(SaveUnitPrototype.Flag.Leader);
+					prototype.attributes.Add(UnitPrototype.MILITARY_LEADER_ATTRIBUTE);
+				}
 
 				prototype.actions.UnionWith(GetUnitActions(prto));
 				prototype.terraformActions.UnionWith(GetUnitTerraforms(prto).Select(tfKey => terraformIdByCiv3Key[tfKey]));
@@ -2066,10 +2073,9 @@ namespace C7GameData {
 			save.Rules.GoldenAgeDuration = rule.GoldenAgeDuration;
 		}
 
-		// The GAME section holds game-level toggles (not RULE data). A SAV's own
-		// GAME section carries the live game state, so it is authoritative when
-		// importing a SAV; otherwise read the scenario's BIQ GAME section.
-		private void ImportGameOptions() {
+		// A SAV's own GAME section is authoritative for game-level toggles;
+		// otherwise read the scenario's BIQ GAME section.
+		private void ImportAllowScientificLeaders() {
 			if (savData is not null) {
 				save.Rules.AllowScientificLeaders = savData.Game.AllowScientificLeaders;
 			} else {

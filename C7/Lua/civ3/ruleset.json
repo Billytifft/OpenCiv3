@@ -4454,6 +4454,12 @@
         "Maya"
       ],
       "unproducible": true,
+      "flags": [
+        "Leader"
+      ],
+      "attributes": [
+        "militaryLeader"
+      ],
       "categories": [
         "Land"
       ],
@@ -11238,7 +11244,8 @@
     "goldenAgeDuration": 20,
     "scientificLeaderChance": 0.03,
     "scientificTraitLeaderChance": 0.05,
-    "maximumLeadersPerType": 1
+    "maxScientificLeaders": 2,
+    "maxMilitaryLeaders": 1
   },
   "timeOptions": {
     "baseUnit": "years",
