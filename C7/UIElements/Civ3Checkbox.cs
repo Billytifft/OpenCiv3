@@ -96,6 +96,10 @@ public partial class Civ3Checkbox : CheckBox {
 
 		SetUpLayout();
 
+		// Grow to fit the box and its label, so the text is clickable too and not
+		// just the icon. Overriding _GetMinimumSize alone is not enough here.
+		CustomMinimumSize = boxContainer.GetCombinedMinimumSize();
+
 		// Hook up our code to the button signals.
 		MouseEntered += () => {
 			hovered = true;

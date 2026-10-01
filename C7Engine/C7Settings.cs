@@ -23,6 +23,20 @@ namespace C7Engine {
 			public const string Opponents = nameof(Opponents);
 		}
 
+		// Gameplay and interface preferences, as surfaced in the Preferences panel.
+		public static class Preferences {
+			public const string SectionName = nameof(Preferences);
+			public const string PromptForResearch = nameof(PromptForResearch);
+		}
+
+		public static class Audio {
+			// Lower case on purpose: ini-parser treats section and key names as
+			// case-sensitive, and existing C7.ini files already use these names.
+			public const string SectionName = "audio";
+			public const string MusicVolume = "musicVolume";
+			public const int DefaultMusicVolume = 100;
+		}
+
 		public static void LoadSettings() {
 			try {
 				settings = Util.GetFileIniDataParser().ReadFile(SETTINGS_FILE_NAME);
@@ -67,6 +81,19 @@ namespace C7Engine {
 		public static T GetTypedSettingOrDefault<T>(string section, string key, T defaultValue) where T : struct, Enum {
 			string value = GetSettingValue(section, key);
 			return Enum.TryParse(value, true, out T result) ? result : defaultValue;
+		}
+
+		public static bool GetBoolOrDefault(string section, string key, bool defaultValue) {
+			return GetSettingsValueOrDefault(section, key, defaultValue ? "true" : "false") == "true";
+		}
+
+		public static void SetBool(string section, string key, bool value) {
+			SetValue(section, key, value ? "true" : "false");
+		}
+
+		public static int GetIntOrDefault(string section, string key, int defaultValue) {
+			string value = GetSettingsValueOrDefault(section, key, defaultValue.ToString());
+			return int.TryParse(value, out int result) ? result : defaultValue;
 		}
 
 		public static bool UseStandaloneMode() {

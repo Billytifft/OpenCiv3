@@ -1014,6 +1014,10 @@ public partial class Game : Node {
 			popupOverlay.ShowPopup(new EscapeQuitPopup(), PopupOverlay.PopupCategory.Info);
 		}
 
+		if (currentAction == C7Action.OpenPreferences) {
+			popupOverlay.ShowPopup(new PreferencesPanel(), PopupOverlay.PopupCategory.Info);
+		}
+
 		if (currentAction == C7Action.ToggleZoom) {
 			if (mapView.cameraZoom != 1) {
 				mapView.setCameraZoomFromMiddle(1.0f);

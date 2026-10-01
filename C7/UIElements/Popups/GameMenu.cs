@@ -12,8 +12,8 @@ public partial class GameMenu : Popup {
 	public override void _Ready() {
 		base._Ready();
 
-		AddTexture(370, 300);
-		AddBackground(370, 300);
+		AddTexture(370, 330);
+		AddBackground(370, 330);
 
 		AddHeader("Main Menu", 10);
 
@@ -24,7 +24,7 @@ public partial class GameMenu : Popup {
 			new("Load Game", Load),
 			// new("New Game (Ctrl-Shift-Q)", NewGame),
 			// TODO: Quick Start?
-			// new("Preferences (Ctrl-P)", OpenPreferences),
+			new("Preferences (Ctrl-P)", OpenPreferences),
 			new("Retire", Retire),
 			new("Save Game", Save),
 			new("Quit Game (ESC)", Quit)
@@ -67,6 +67,9 @@ public partial class GameMenu : Popup {
 	}
 
 	private void OpenPreferences() {
-		// TODO: Preferences management - disable animation, etc.
+		PopupOverlay overlay = GetParent<PopupOverlay>();
+		// Close this menu first, otherwise it is left behind the preferences panel.
+		overlay.OnHidePopup();
+		overlay.ShowPopup(new PreferencesPanel(), PopupOverlay.PopupCategory.Info);
 	}
 }

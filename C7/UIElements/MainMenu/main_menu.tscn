@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://gnt0y3og7nk6"]
+[gd_scene load_steps=12 format=3 uid="uid://gnt0y3og7nk6"]
 
 [ext_resource type="Script" uid="uid://dgpuse88jc2hc" path="res://UIElements/MainMenu/MainMenu.cs" id="1_akneh"]
 [ext_resource type="Texture2D" uid="uid://s55xvcaini8h" path="res://title-screen.png" id="2_erxyj"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://ovwv08a53d7k" path="res://title.png" id="4_brea7"]
 [ext_resource type="Script" uid="uid://dauceqein40wj" path="res://UIElements/MainMenu/MainMenuMusicPlayer.cs" id="4_tqr50"]
 [ext_resource type="PackedScene" uid="uid://bvncm1bgcii5e" path="res://UIElements/civ3_file_dialog.tscn" id="5_rw2g7"]
+[ext_resource type="Script" uid="uid://bf02vtfo70hue" path="res://UIElements/Popups/PopupOverlay.cs" id="6_prefov"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vbij8"]
 
@@ -14,7 +15,7 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gmerc"]
 
-[node name="MainMenu" type="Node" node_paths=PackedStringArray("LoadDialog", "NoCiv3Options", "SetCiv3HomeDialog", "LoadScenarioDialog", "ButtonContainer", "player")]
+[node name="MainMenu" type="Node" node_paths=PackedStringArray("LoadDialog", "NoCiv3Options", "SetCiv3HomeDialog", "LoadScenarioDialog", "ButtonContainer", "player", "popupOverlay")]
 script = ExtResource("1_akneh")
 LoadDialog = NodePath("LoadDialog")
 NoCiv3Options = NodePath("Control/NoCiv3Options")
@@ -22,6 +23,7 @@ SetCiv3HomeDialog = NodePath("SetCiv3HomeDialog")
 LoadScenarioDialog = NodePath("LoadScenarioDialog")
 ButtonContainer = NodePath("Control/MainMenuContainer")
 player = NodePath("SoundEffectPlayer")
+popupOverlay = NodePath("PopupLayer/PopupOverlay")
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
@@ -147,6 +149,22 @@ visible = false
 [node name="LoadScenarioDialog" parent="." instance=ExtResource("5_rw2g7")]
 visible = false
 
+[node name="PopupLayer" type="CanvasLayer" parent="."]
+
+[node name="PopupOverlay" type="HBoxContainer" parent="PopupLayer" node_paths=PackedStringArray("control")]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 0
+size_flags_horizontal = 3
+alignment = 2
+script = ExtResource("6_prefov")
+control = NodePath("../../Control")
+
+[node name="PopupSound" type="AudioStreamPlayer" parent="PopupLayer/PopupOverlay"]
+
 [connection signal="pressed" from="Control/NoCiv3Options/SetCiv3Home" to="." method="_on_SetCiv3Home_pressed"]
 [connection signal="pressed" from="Control/NoCiv3Options/UseStandaloneMode" to="." method="UseStandaloneModePressed"]
 [connection signal="dir_selected" from="SetCiv3HomeDialog" to="." method="_on_SetCiv3HomeDialog_dir_selected"]
+[connection signal="HidePopup" from="PopupLayer/PopupOverlay" to="PopupLayer/PopupOverlay" method="OnHidePopup"]

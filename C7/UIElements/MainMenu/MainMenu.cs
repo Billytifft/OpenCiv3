@@ -18,6 +18,8 @@ public partial class MainMenu : Node {
 	MenuButtonContainer ButtonContainer;
 	[Export]
 	AudioStreamPlayer player;
+	[Export]
+	PopupOverlay popupOverlay;
 
 	GlobalSingleton Global;
 
@@ -62,8 +64,6 @@ public partial class MainMenu : Node {
 		ButtonContainer.HallOfFame.Pressed += HallOfFame;
 		ButtonContainer.HallOfFame.Visible = false;
 		ButtonContainer.Preferences.Pressed += Preferences;
-		ButtonContainer.Preferences.Visible = false;
-		ButtonContainer.AudioPreferences.Pressed += Preferences;
 		ButtonContainer.AudioPreferences.Visible = false;
 		ButtonContainer.Credits.Pressed += showCredits;
 		ButtonContainer.Exit.Pressed += _on_Exit_pressed;
@@ -142,6 +142,7 @@ public partial class MainMenu : Node {
 
 	public void Preferences() {
 		PlayButtonPressedSound();
+		popupOverlay.ShowPopup(new PreferencesPanel(), PopupOverlay.PopupCategory.Info);
 	}
 
 	public void _on_Exit_pressed() {
