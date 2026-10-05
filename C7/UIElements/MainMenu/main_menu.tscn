@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://gnt0y3og7nk6"]
+[gd_scene load_steps=13 format=3 uid="uid://gnt0y3og7nk6"]
 
 [ext_resource type="Script" uid="uid://dgpuse88jc2hc" path="res://UIElements/MainMenu/MainMenu.cs" id="1_akneh"]
 [ext_resource type="Texture2D" uid="uid://s55xvcaini8h" path="res://title-screen.png" id="2_erxyj"]
@@ -22,14 +22,13 @@ font_size = 10
 font_color = Color(0, 0, 0, 1)
 shadow_color = Color(1, 1, 1, 0.533333)
 
-[node name="MainMenu" type="Node" node_paths=PackedStringArray("LoadDialog", "NoCiv3Options", "SetCiv3HomeDialog", "LoadScenarioDialog", "ButtonContainer", "player")]
+[node name="MainMenu" type="Node" node_paths=PackedStringArray("LoadDialog", "NoCiv3Options", "SetCiv3HomeDialog", "LoadScenarioDialog", "ButtonContainer", "preferences")]
 script = ExtResource("1_akneh")
 LoadDialog = NodePath("LoadDialog")
 NoCiv3Options = NodePath("Control/Background/PanelContainer/MarginContainer/NoCiv3Options")
 SetCiv3HomeDialog = NodePath("SetCiv3HomeDialog")
 LoadScenarioDialog = NodePath("LoadScenarioDialog")
 ButtonContainer = NodePath("Control/Background/PanelContainer/MarginContainer/MainMenuContainer")
-player = NodePath("SoundEffectPlayer")
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
@@ -231,6 +230,7 @@ visible = false
 
 [node name="Preferences" parent="." instance=ExtResource("6_prefs")]
 visible = false
+layout_mode = 3
 
 [connection signal="pressed" from="Control/Background/PanelContainer/MarginContainer/NoCiv3Options/SetCiv3Home" to="." method="_on_SetCiv3Home_pressed"]
 [connection signal="pressed" from="Control/Background/PanelContainer/MarginContainer/NoCiv3Options/UseStandaloneMode" to="." method="UseStandaloneModePressed"]
