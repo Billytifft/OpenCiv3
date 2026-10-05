@@ -15,19 +15,19 @@ grow_vertical = 2
 mouse_filter = 0
 script = ExtResource("1_prefs")
 background = NodePath("Background")
-promptForResearch = NodePath("Background/Rows/GameGrid/PromptForResearch")
-musicVolume = NodePath("Background/Rows/MusicVolumeRow/MusicVolume")
-sfxVolume = NodePath("Background/Rows/SfxVolumeRow/SfxVolume")
-uiVolume = NodePath("Background/Rows/UiVolumeRow/UiVolume")
-ambienceVolume = NodePath("Background/Rows/AmbienceVolumeRow/AmbienceVolume")
-musicVolumeLabel = NodePath("Background/Rows/MusicVolumeRow/MusicVolumeValue")
-sfxVolumeLabel = NodePath("Background/Rows/SfxVolumeRow/SfxVolumeValue")
-uiVolumeLabel = NodePath("Background/Rows/UiVolumeRow/UiVolumeValue")
-ambienceVolumeLabel = NodePath("Background/Rows/AmbienceVolumeRow/AmbienceVolumeValue")
-musicVolumeRow = NodePath("Background/Rows/MusicVolumeRow")
-sfxVolumeRow = NodePath("Background/Rows/SfxVolumeRow")
-uiVolumeRow = NodePath("Background/Rows/UiVolumeRow")
-ambienceVolumeRow = NodePath("Background/Rows/AmbienceVolumeRow")
+promptForResearch = NodePath("Background/Rows/GameSection/GameGrid/PromptForResearch")
+musicVolume = NodePath("Background/Rows/AudioSection/MusicVolumeRow/MusicVolume")
+sfxVolume = NodePath("Background/Rows/AudioSection/SfxVolumeRow/SfxVolume")
+uiVolume = NodePath("Background/Rows/AudioSection/UiVolumeRow/UiVolume")
+ambienceVolume = NodePath("Background/Rows/AudioSection/AmbienceVolumeRow/AmbienceVolume")
+musicVolumeLabel = NodePath("Background/Rows/AudioSection/MusicVolumeRow/MusicVolumeValue")
+sfxVolumeLabel = NodePath("Background/Rows/AudioSection/SfxVolumeRow/SfxVolumeValue")
+uiVolumeLabel = NodePath("Background/Rows/AudioSection/UiVolumeRow/UiVolumeValue")
+ambienceVolumeLabel = NodePath("Background/Rows/AudioSection/AmbienceVolumeRow/AmbienceVolumeValue")
+musicVolumeRow = NodePath("Background/Rows/AudioSection/MusicVolumeRow")
+sfxVolumeRow = NodePath("Background/Rows/AudioSection/SfxVolumeRow")
+uiVolumeRow = NodePath("Background/Rows/AudioSection/UiVolumeRow")
+ambienceVolumeRow = NodePath("Background/Rows/AudioSection/AmbienceVolumeRow")
 close = NodePath("Background/Close")
 
 [node name="Background" type="TextureRect" parent="."]
@@ -43,24 +43,44 @@ offset_top = 68.0
 offset_right = 964.0
 offset_bottom = 716.0
 mouse_filter = 0
-theme_override_constants/separation = 8
+theme_override_constants/separation = 0
+
+[node name="GameSection" type="VBoxContainer" parent="Background/Rows"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 0
+theme_override_constants/separation = 6
 alignment = 1
 
-[node name="GameHeading" type="Label" parent="Background/Rows"]
+[node name="UnitsSection" type="VBoxContainer" parent="Background/Rows"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 0
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="AudioSection" type="VBoxContainer" parent="Background/Rows"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 0
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="GameHeading" type="Label" parent="Background/Rows/GameSection"]
 layout_mode = 2
 mouse_filter = 0
 theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
 theme_override_font_sizes/font_size = 18
 text = "GAME"
 
-[node name="GameGrid" type="GridContainer" parent="Background/Rows"]
+[node name="GameGrid" type="GridContainer" parent="Background/Rows/GameSection"]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 0
 columns = 3
 column_min_width = 290
 
-[node name="PromptForResearch" type="CheckBox" parent="Background/Rows/GameGrid"]
+[node name="PromptForResearch" type="CheckBox" parent="Background/Rows/GameSection/GameGrid"]
 layout_mode = 2
 size_flags_horizontal = 0
 mouse_filter = 0
@@ -70,40 +90,40 @@ Text = "Ask which tech to research"
 FontSize = 13
 textPosition = 1
 
-[node name="UnitsHeading" type="Label" parent="Background/Rows"]
+[node name="UnitsHeading" type="Label" parent="Background/Rows/UnitsSection"]
 layout_mode = 2
 mouse_filter = 0
 theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
 theme_override_font_sizes/font_size = 18
 text = "UNITS"
 
-[node name="UnitsGrid" type="GridContainer" parent="Background/Rows"]
+[node name="UnitsGrid" type="GridContainer" parent="Background/Rows/UnitsSection"]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 0
 columns = 3
 column_min_width = 290
 
-[node name="UnitsNote" type="Label" parent="Background/Rows/UnitsGrid"]
+[node name="UnitsNote" type="Label" parent="Background/Rows/UnitsSection/UnitsGrid"]
 layout_mode = 2
 mouse_filter = 0
 theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
 theme_override_font_sizes/font_size = 13
 text = "No unit options available yet."
 
-[node name="AudioHeading" type="Label" parent="Background/Rows"]
+[node name="AudioHeading" type="Label" parent="Background/Rows/AudioSection"]
 layout_mode = 2
 mouse_filter = 0
 theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
 theme_override_font_sizes/font_size = 18
 text = "AUDIO"
 
-[node name="MusicVolumeRow" type="HBoxContainer" parent="Background/Rows"]
+[node name="MusicVolumeRow" type="HBoxContainer" parent="Background/Rows/AudioSection"]
 layout_mode = 2
 mouse_filter = 0
 theme_override_constants/separation = 12
 
-[node name="MusicVolumeLabel" type="Label" parent="Background/Rows/MusicVolumeRow"]
+[node name="MusicVolumeLabel" type="Label" parent="Background/Rows/AudioSection/MusicVolumeRow"]
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
 size_flags_vertical = 4
@@ -112,7 +132,7 @@ theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
 theme_override_font_sizes/font_size = 13
 text = "Music"
 
-[node name="MusicVolume" type="HSlider" parent="Background/Rows/MusicVolumeRow"]
+[node name="MusicVolume" type="HSlider" parent="Background/Rows/AudioSection/MusicVolumeRow"]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -124,7 +144,7 @@ value = 100.0
 script = ExtResource("4_slider")
 metadata/_custom_type_script = "uid://clv4mgavtlrul"
 
-[node name="MusicVolumeValue" type="Label" parent="Background/Rows/MusicVolumeRow"]
+[node name="MusicVolumeValue" type="Label" parent="Background/Rows/AudioSection/MusicVolumeRow"]
 custom_minimum_size = Vector2(52, 0)
 layout_mode = 2
 size_flags_vertical = 4
@@ -134,12 +154,12 @@ theme_override_font_sizes/font_size = 13
 text = "100%"
 horizontal_alignment = 2
 
-[node name="SfxVolumeRow" type="HBoxContainer" parent="Background/Rows"]
+[node name="SfxVolumeRow" type="HBoxContainer" parent="Background/Rows/AudioSection"]
 layout_mode = 2
 mouse_filter = 0
 theme_override_constants/separation = 12
 
-[node name="SfxVolumeLabel" type="Label" parent="Background/Rows/SfxVolumeRow"]
+[node name="SfxVolumeLabel" type="Label" parent="Background/Rows/AudioSection/SfxVolumeRow"]
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
 size_flags_vertical = 4
@@ -148,7 +168,7 @@ theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
 theme_override_font_sizes/font_size = 13
 text = "Sound effects"
 
-[node name="SfxVolume" type="HSlider" parent="Background/Rows/SfxVolumeRow"]
+[node name="SfxVolume" type="HSlider" parent="Background/Rows/AudioSection/SfxVolumeRow"]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -160,7 +180,7 @@ value = 100.0
 script = ExtResource("4_slider")
 metadata/_custom_type_script = "uid://clv4mgavtlrul"
 
-[node name="SfxVolumeValue" type="Label" parent="Background/Rows/SfxVolumeRow"]
+[node name="SfxVolumeValue" type="Label" parent="Background/Rows/AudioSection/SfxVolumeRow"]
 custom_minimum_size = Vector2(52, 0)
 layout_mode = 2
 size_flags_vertical = 4
@@ -170,12 +190,12 @@ theme_override_font_sizes/font_size = 13
 text = "100%"
 horizontal_alignment = 2
 
-[node name="UiVolumeRow" type="HBoxContainer" parent="Background/Rows"]
+[node name="UiVolumeRow" type="HBoxContainer" parent="Background/Rows/AudioSection"]
 layout_mode = 2
 mouse_filter = 0
 theme_override_constants/separation = 12
 
-[node name="UiVolumeLabel" type="Label" parent="Background/Rows/UiVolumeRow"]
+[node name="UiVolumeLabel" type="Label" parent="Background/Rows/AudioSection/UiVolumeRow"]
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
 size_flags_vertical = 4
@@ -184,7 +204,7 @@ theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
 theme_override_font_sizes/font_size = 13
 text = "Interface"
 
-[node name="UiVolume" type="HSlider" parent="Background/Rows/UiVolumeRow"]
+[node name="UiVolume" type="HSlider" parent="Background/Rows/AudioSection/UiVolumeRow"]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -196,7 +216,7 @@ value = 100.0
 script = ExtResource("4_slider")
 metadata/_custom_type_script = "uid://clv4mgavtlrul"
 
-[node name="UiVolumeValue" type="Label" parent="Background/Rows/UiVolumeRow"]
+[node name="UiVolumeValue" type="Label" parent="Background/Rows/AudioSection/UiVolumeRow"]
 custom_minimum_size = Vector2(52, 0)
 layout_mode = 2
 size_flags_vertical = 4
@@ -206,12 +226,12 @@ theme_override_font_sizes/font_size = 13
 text = "100%"
 horizontal_alignment = 2
 
-[node name="AmbienceVolumeRow" type="HBoxContainer" parent="Background/Rows"]
+[node name="AmbienceVolumeRow" type="HBoxContainer" parent="Background/Rows/AudioSection"]
 layout_mode = 2
 mouse_filter = 0
 theme_override_constants/separation = 12
 
-[node name="AmbienceVolumeLabel" type="Label" parent="Background/Rows/AmbienceVolumeRow"]
+[node name="AmbienceVolumeLabel" type="Label" parent="Background/Rows/AudioSection/AmbienceVolumeRow"]
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
 size_flags_vertical = 4
@@ -220,7 +240,7 @@ theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
 theme_override_font_sizes/font_size = 13
 text = "Ambience"
 
-[node name="AmbienceVolume" type="HSlider" parent="Background/Rows/AmbienceVolumeRow"]
+[node name="AmbienceVolume" type="HSlider" parent="Background/Rows/AudioSection/AmbienceVolumeRow"]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -232,7 +252,7 @@ value = 100.0
 script = ExtResource("4_slider")
 metadata/_custom_type_script = "uid://clv4mgavtlrul"
 
-[node name="AmbienceVolumeValue" type="Label" parent="Background/Rows/AmbienceVolumeRow"]
+[node name="AmbienceVolumeValue" type="Label" parent="Background/Rows/AudioSection/AmbienceVolumeRow"]
 custom_minimum_size = Vector2(52, 0)
 layout_mode = 2
 size_flags_vertical = 4
