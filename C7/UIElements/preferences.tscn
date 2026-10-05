@@ -24,7 +24,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_prefs")
-promptForResearch = NodePath("Margin/Panel/Rows/PromptForResearch")
+promptForResearch = NodePath("Margin/Panel/Rows/GameGrid/PromptForResearch")
 musicVolume = NodePath("Margin/Panel/Rows/MusicVolumeRow/MusicVolume")
 sfxVolume = NodePath("Margin/Panel/Rows/SfxVolumeRow/SfxVolume")
 uiVolume = NodePath("Margin/Panel/Rows/UiVolumeRow/UiVolume")
@@ -77,7 +77,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "Game"
 
-[node name="PromptForResearch" type="CheckBox" parent="Margin/Panel/Rows"]
+[node name="GameGrid" type="GridContainer" parent="Margin/Panel/Rows"]
+layout_mode = 2
+columns = 3
+column_min_width = 220
+
+[node name="PromptForResearch" type="CheckBox" parent="Margin/Panel/Rows/GameGrid"]
 layout_mode = 2
 toggle_mode = true
 script = ExtResource("2_checkbox")
