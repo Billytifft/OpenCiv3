@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://dcrdcjop64t6t" path="res://UIElements/Civ3TextureButton.cs" id="4_close"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.117647, 0.101961, 0.0784314, 0.941176)
+bg_color = Color(0.156863, 0.137255, 0.109804, 0.960784)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
@@ -45,7 +45,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.588235)
+color = Color(0, 0, 0, 0.4)
 
 [node name="Margin" type="MarginContainer" parent="."]
 anchors_preset = 15
