@@ -148,17 +148,6 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_constants/separation = 15
 script = ExtResource("3_t1nuq")
-NewGame = null
-QuickStart = null
-Tutorial = null
-LoadGame = null
-LoadScenario = null
-HallOfFame = null
-ToggleGraphics = null
-Preferences = null
-AudioPreferences = null
-Credits = null
-Exit = null
 
 [node name="MarginContainer" type="MarginContainer" parent="Control/Background"]
 layout_mode = 1

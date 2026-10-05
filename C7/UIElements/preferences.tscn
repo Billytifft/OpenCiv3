@@ -86,7 +86,7 @@ size_flags_horizontal = 0
 mouse_filter = 0
 toggle_mode = true
 script = ExtResource("3_checkbox")
-Text = "Ask which tech to research"
+Text = "Ask which tech to research next"
 FontSize = 13
 textPosition = 1
 

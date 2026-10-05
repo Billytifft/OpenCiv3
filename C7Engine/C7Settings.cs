@@ -9,6 +9,14 @@ namespace C7Engine {
 		private const string SETTINGS_FILE_NAME = "C7.ini";
 		public static IniData settings;
 
+		public static class Audio {
+			public const string SectionName = nameof(Audio);
+			public const string MusicVolume = nameof(MusicVolume);
+			public const string SfxAudioVolume = nameof(SfxAudioVolume);
+			public const string UiAudioVolume = nameof(UiAudioVolume);
+			public const string AmbienceAudioVolume = nameof(AmbienceAudioVolume);
+		}
+
 		public static class LastGame {
 			public const string SectionName = nameof(LastGame);
 			public const string WorldSize = nameof(WorldSize);

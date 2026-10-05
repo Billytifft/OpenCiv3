@@ -1,30 +1,23 @@
 using C7Engine;
-using Godot;
 
 namespace C7.UIElements;
 
 /// <summary>
 /// User preferences, stored outside the save file so they stay stable across
-/// games and scenarios. Not yet surfaced anywhere in the UI.
+/// games and scenarios. Surfaced by the Preferences scene, reachable from the
+/// main menu, the in-game GameMenu, and Ctrl-P.
 /// </summary>
 public static class PreferencesSettings {
-	public static class Game {
-		// Lower case on purpose: ini-parser treats section and key names as
-		// case-sensitive, and existing C7.ini files already use these names.
-		public const string SectionName = "preferences";
-		public const string PromptForResearch = "promptForResearch";
-		public const bool DefaultPromptForResearch = true;
-	}
+	public const string SectionName = "Preferences";
+	public const string PromptForResearch = nameof(PromptForResearch);
+	public const bool DefaultPromptForResearch = true;
 
 	public static bool GetPromptForResearch() {
-		return C7Settings.GetBoolOrDefault(
-			Game.SectionName,
-			Game.PromptForResearch,
-			Game.DefaultPromptForResearch);
+		return C7Settings.GetBoolOrDefault(SectionName, PromptForResearch, DefaultPromptForResearch);
 	}
 
 	public static void SetPromptForResearch(bool value) {
-		C7Settings.SetBool(Game.SectionName, Game.PromptForResearch, value);
+		C7Settings.SetBool(SectionName, PromptForResearch, value);
 		C7Settings.SaveSettings();
 	}
 }

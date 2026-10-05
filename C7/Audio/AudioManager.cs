@@ -19,8 +19,6 @@ public partial class AudioManager : Node {
 	private PolyphonicAudioPlayer _polyUiAudioPlayer;
 	private PolyphonicAudioPlayer _polyAmbienceAudioPlayer;
 
-	private static string AudioSettingsSection = "audio";
-
 	public static string MusicBus = "Music";
 	public static string SfxAudioBus = "Sfx";
 	public static string UIAudioBus = "UI";
@@ -33,10 +31,10 @@ public partial class AudioManager : Node {
 	// Maps a bus to the settings key holding its volume. Public so settings UI
 	// can drive a bus without repeating the magic strings.
 	public static readonly Dictionary<string, string> BusVolumeKeys = new() {
-		{ MusicBus, "musicVolume" },
-		{ SfxAudioBus, "sfxAudioVolume" },
-		{ UIAudioBus, "uiAudioVolume" },
-		{ AmbienceAudioBus, "ambienceAudioVolume" },
+		{ MusicBus, C7Settings.Audio.MusicVolume },
+		{ SfxAudioBus, C7Settings.Audio.SfxAudioVolume },
+		{ UIAudioBus, C7Settings.Audio.UiAudioVolume },
+		{ AmbienceAudioBus, C7Settings.Audio.AmbienceAudioVolume },
 	};
 
 
@@ -44,22 +42,24 @@ public partial class AudioManager : Node {
 	public override void _Ready() {
 		log = LogManager.ForContext<AudioManager>();
 
-		musicEnabled = ConfigureVolume("musicVolume", MusicBus);
+		musicEnabled = ConfigureVolume(C7Settings.Audio.MusicVolume, MusicBus);
 		_polyMusicPlayer = new PolyphonicAudioPlayer(musicPlayer, 2);
 
-		sfxAudioEnabled = ConfigureVolume("sfxAudioVolume", SfxAudioBus);
+		sfxAudioEnabled = ConfigureVolume(C7Settings.Audio.SfxAudioVolume, SfxAudioBus);
 		_polySfxAudioPlayer = new PolyphonicAudioPlayer(sfxAudioPlayer, 32);
 
-		uiAudioEnabled = ConfigureVolume("uiAudioVolume", UIAudioBus);
+		uiAudioEnabled = ConfigureVolume(C7Settings.Audio.UiAudioVolume, UIAudioBus);
 		_polyUiAudioPlayer = new PolyphonicAudioPlayer(uiAudioPlayer, 8);
 
-		ambienceAudioEnabled = ConfigureVolume("ambienceAudioVolume", AmbienceAudioBus);
+		ambienceAudioEnabled = ConfigureVolume(C7Settings.Audio.AmbienceAudioVolume, AmbienceAudioBus);
 		_polyAmbienceAudioPlayer = new PolyphonicAudioPlayer(ambienceAudioPlayer, 8);
 	}
 
 	private bool ConfigureVolume(string volumeKey, string audioBus) {
 		try {
-			string volume = C7Settings.GetSettingValue(AudioSettingsSection, volumeKey);
+			// A missing key means the user never set it, so fall back to full
+			// volume rather than letting int.Parse throw on null.
+			string volume = C7Settings.GetSettingsValueOrDefault(C7Settings.Audio.SectionName, volumeKey, "100");
 			float volumeDb = LogicalVolumeAsDecibel(int.Parse(volume));
 
 			if (volumeDb == float.MinValue) {
@@ -136,7 +136,7 @@ public partial class AudioManager : Node {
 			log.Warning("No volume setting known for bus {bus}", bus);
 			return -1;
 		}
-		string stored = C7Settings.GetSettingsValueOrDefault(AudioSettingsSection, key, "100");
+		string stored = C7Settings.GetSettingsValueOrDefault(C7Settings.Audio.SectionName, key, "100");
 		return int.TryParse(stored, out int volume) ? volume : 100;
 	}
 
@@ -146,7 +146,7 @@ public partial class AudioManager : Node {
 			return;
 		}
 		volume = Mathf.Clamp(volume, 0, 100);
-		C7Settings.SetValue(AudioSettingsSection, key, volume.ToString());
+		C7Settings.SetValue(C7Settings.Audio.SectionName, key, volume.ToString());
 		C7Settings.SaveSettings();
 		SetBusVolumeDb(bus, LogicalVolumeAsDecibel(volume));
 	}
