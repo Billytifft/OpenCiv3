@@ -30,6 +30,7 @@ public partial class Civ3Checkbox : CheckBox {
 			_text = value;
 			if (label != null) {
 				label.Text = _text;
+				RefreshMinimumSize();
 			}
 		}
 	}
@@ -41,6 +42,7 @@ public partial class Civ3Checkbox : CheckBox {
 			_fontSize = value;
 			if (label != null) {
 				label.AddThemeFontSizeOverride("font_size", _fontSize);
+				RefreshMinimumSize();
 			}
 		}
 	}
@@ -145,6 +147,18 @@ public partial class Civ3Checkbox : CheckBox {
 			boxContainer.AddChild(textureRect);
 			boxContainer.AddChild(label);
 		}
+
+		RefreshMinimumSize();
+	}
+
+	// Grow the button to cover the icon and the label so the whole thing is
+	// clickable. Godot caches the bare CheckBox size, so it has to be set
+	// explicitly whenever the contents change.
+	private void RefreshMinimumSize() {
+		if (boxContainer == null) {
+			return;
+		}
+		CustomMinimumSize = boxContainer.GetCombinedMinimumSize();
 	}
 
 	// Expand the size of the button to contain the texture and the label.

@@ -25,11 +25,17 @@ public partial class Preferences : Control {
 	[Export] Control uiVolumeRow;
 	[Export] Control ambienceVolumeRow;
 	[Export] Civ3TextureButton close;
+	[Export] TextureRect background;
 
 	private AudioManager audioManager;
 
 	public override void _Ready() {
 		audioManager = GetNode<AudioManager>("/root/GlobalAudioManager");
+
+		// Match the advisor screens: the background texture is set on the
+		// TextureRect via textureConfigKey, and the title is drawn with the
+		// shared helper so the font and spacing match the other full-screen views.
+		AdvisorUtils.CreateAdvisorTitle(background, background.Texture.GetWidth(), "PREFERENCES");
 
 		promptForResearch.ButtonPressed = PreferencesSettings.GetPromptForResearch();
 		promptForResearch.Toggled += enabled => {

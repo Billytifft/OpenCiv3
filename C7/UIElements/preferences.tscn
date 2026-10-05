@@ -1,218 +1,252 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://UIElements/Preferences.cs" id="1_prefs"]
-[ext_resource type="Script" uid="uid://b4grm7mhaqgri" path="res://UIElements/Civ3Checkbox.cs" id="2_checkbox"]
-[ext_resource type="Script" uid="uid://clv4mgavtlrul" path="res://UIElements/Civ3HSlider.cs" id="3_slider"]
-[ext_resource type="Script" uid="uid://dcrdcjop64t6t" path="res://UIElements/Civ3TextureButton.cs" id="4_close"]
+[ext_resource type="Script" uid="uid://doqipc4rnaotx" path="res://UIElements/Civ3TextureRect.cs" id="2_bg"]
+[ext_resource type="Script" uid="uid://b4grm7mhaqgri" path="res://UIElements/Civ3Checkbox.cs" id="3_checkbox"]
+[ext_resource type="Script" uid="uid://clv4mgavtlrul" path="res://UIElements/Civ3HSlider.cs" id="4_slider"]
+[ext_resource type="Script" uid="uid://dcrdcjop64t6t" path="res://UIElements/Civ3TextureButton.cs" id="5_close"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.156863, 0.137255, 0.109804, 0.960784)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.72549, 0.643137, 0.439216, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[node name="Preferences" type="Control" node_paths=PackedStringArray("promptForResearch", "musicVolume", "sfxVolume", "uiVolume", "ambienceVolume", "musicVolumeLabel", "sfxVolumeLabel", "uiVolumeLabel", "ambienceVolumeLabel", "musicVolumeRow", "sfxVolumeRow", "uiVolumeRow", "ambienceVolumeRow", "close")]
+[node name="Preferences" type="CenterContainer" node_paths=PackedStringArray("background", "promptForResearch", "musicVolume", "sfxVolume", "uiVolume", "ambienceVolume", "musicVolumeLabel", "sfxVolumeLabel", "uiVolumeLabel", "ambienceVolumeLabel", "musicVolumeRow", "sfxVolumeRow", "uiVolumeRow", "ambienceVolumeRow", "close")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 0
 script = ExtResource("1_prefs")
-promptForResearch = NodePath("Margin/Panel/Rows/GameGrid/PromptForResearch")
-musicVolume = NodePath("Margin/Panel/Rows/MusicVolumeRow/MusicVolume")
-sfxVolume = NodePath("Margin/Panel/Rows/SfxVolumeRow/SfxVolume")
-uiVolume = NodePath("Margin/Panel/Rows/UiVolumeRow/UiVolume")
-ambienceVolume = NodePath("Margin/Panel/Rows/AmbienceVolumeRow/AmbienceVolume")
-musicVolumeLabel = NodePath("Margin/Panel/Rows/MusicVolumeRow/MusicVolumeValue")
-sfxVolumeLabel = NodePath("Margin/Panel/Rows/SfxVolumeRow/SfxVolumeValue")
-uiVolumeLabel = NodePath("Margin/Panel/Rows/UiVolumeRow/UiVolumeValue")
-ambienceVolumeLabel = NodePath("Margin/Panel/Rows/AmbienceVolumeRow/AmbienceVolumeValue")
-musicVolumeRow = NodePath("Margin/Panel/Rows/MusicVolumeRow")
-sfxVolumeRow = NodePath("Margin/Panel/Rows/SfxVolumeRow")
-uiVolumeRow = NodePath("Margin/Panel/Rows/UiVolumeRow")
-ambienceVolumeRow = NodePath("Margin/Panel/Rows/AmbienceVolumeRow")
-close = NodePath("Margin/Panel/Rows/Footer/Close")
+background = NodePath("Background")
+promptForResearch = NodePath("Background/Rows/GameGrid/PromptForResearch")
+musicVolume = NodePath("Background/Rows/MusicVolumeRow/MusicVolume")
+sfxVolume = NodePath("Background/Rows/SfxVolumeRow/SfxVolume")
+uiVolume = NodePath("Background/Rows/UiVolumeRow/UiVolume")
+ambienceVolume = NodePath("Background/Rows/AmbienceVolumeRow/AmbienceVolume")
+musicVolumeLabel = NodePath("Background/Rows/MusicVolumeRow/MusicVolumeValue")
+sfxVolumeLabel = NodePath("Background/Rows/SfxVolumeRow/SfxVolumeValue")
+uiVolumeLabel = NodePath("Background/Rows/UiVolumeRow/UiVolumeValue")
+ambienceVolumeLabel = NodePath("Background/Rows/AmbienceVolumeRow/AmbienceVolumeValue")
+musicVolumeRow = NodePath("Background/Rows/MusicVolumeRow")
+sfxVolumeRow = NodePath("Background/Rows/SfxVolumeRow")
+uiVolumeRow = NodePath("Background/Rows/UiVolumeRow")
+ambienceVolumeRow = NodePath("Background/Rows/AmbienceVolumeRow")
+close = NodePath("Background/Close")
 
-[node name="Dim" type="ColorRect" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.4)
-
-[node name="Margin" type="MarginContainer" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 60
-theme_override_constants/margin_top = 48
-theme_override_constants/margin_right = 60
-theme_override_constants/margin_bottom = 48
-
-[node name="Panel" type="PanelContainer" parent="Margin"]
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
-
-[node name="Rows" type="VBoxContainer" parent="Margin/Panel"]
-theme_override_constants/separation = 10
-
-[node name="Title" type="Label" parent="Margin/Panel/Rows"]
+[node name="Background" type="TextureRect" parent="."]
 layout_mode = 2
-theme_override_font_sizes/font_size = 26
-text = "PREFERENCES"
+mouse_filter = 0
+script = ExtResource("2_bg")
+textureConfigKey = "screens.wonders.background"
 
-[node name="Separator" type="HSeparator" parent="Margin/Panel/Rows"]
-layout_mode = 2
+[node name="Rows" type="VBoxContainer" parent="Background"]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 68.0
+offset_right = 964.0
+offset_bottom = 716.0
+mouse_filter = 0
+theme_override_constants/separation = 8
+alignment = 1
 
-[node name="GameHeading" type="Label" parent="Margin/Panel/Rows"]
+[node name="GameHeading" type="Label" parent="Background/Rows"]
 layout_mode = 2
+mouse_filter = 0
+theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
 theme_override_font_sizes/font_size = 18
-text = "Game"
+text = "GAME"
 
-[node name="GameGrid" type="GridContainer" parent="Margin/Panel/Rows"]
+[node name="GameGrid" type="GridContainer" parent="Background/Rows"]
 layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 0
 columns = 3
-column_min_width = 220
+column_min_width = 290
 
-[node name="PromptForResearch" type="CheckBox" parent="Margin/Panel/Rows/GameGrid"]
+[node name="PromptForResearch" type="CheckBox" parent="Background/Rows/GameGrid"]
 layout_mode = 2
+size_flags_horizontal = 0
+mouse_filter = 0
 toggle_mode = true
-script = ExtResource("2_checkbox")
+script = ExtResource("3_checkbox")
 Text = "Ask which tech to research"
 FontSize = 13
+textPosition = 1
 
-[node name="UnitsHeading" type="Label" parent="Margin/Panel/Rows"]
+[node name="UnitsHeading" type="Label" parent="Background/Rows"]
 layout_mode = 2
+mouse_filter = 0
+theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
 theme_override_font_sizes/font_size = 18
-text = "Units"
+text = "UNITS"
 
-[node name="UnitsNote" type="Label" parent="Margin/Panel/Rows"]
+[node name="UnitsGrid" type="GridContainer" parent="Background/Rows"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+size_flags_horizontal = 3
+mouse_filter = 0
+columns = 3
+column_min_width = 290
+
+[node name="UnitsNote" type="Label" parent="Background/Rows/UnitsGrid"]
+layout_mode = 2
+mouse_filter = 0
+theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
+theme_override_font_sizes/font_size = 13
 text = "No unit options available yet."
-autowrap_mode = 2
 
-[node name="AudioHeading" type="Label" parent="Margin/Panel/Rows"]
+[node name="AudioHeading" type="Label" parent="Background/Rows"]
 layout_mode = 2
+mouse_filter = 0
+theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
 theme_override_font_sizes/font_size = 18
-text = "Audio"
+text = "AUDIO"
 
-[node name="MusicVolumeRow" type="HBoxContainer" parent="Margin/Panel/Rows"]
+[node name="MusicVolumeRow" type="HBoxContainer" parent="Background/Rows"]
 layout_mode = 2
+mouse_filter = 0
 theme_override_constants/separation = 12
 
-[node name="MusicVolumeLabel" type="Label" parent="Margin/Panel/Rows/MusicVolumeRow"]
-custom_minimum_size = Vector2(110, 0)
+[node name="MusicVolumeLabel" type="Label" parent="Background/Rows/MusicVolumeRow"]
+custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 0
+theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
+theme_override_font_sizes/font_size = 13
 text = "Music"
 
-[node name="MusicVolume" type="HSlider" parent="Margin/Panel/Rows/MusicVolumeRow"]
-custom_minimum_size = Vector2(220, 0)
+[node name="MusicVolume" type="HSlider" parent="Background/Rows/MusicVolumeRow"]
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 0
 max_value = 100.0
 step = 1.0
 value = 100.0
-script = ExtResource("3_slider")
+script = ExtResource("4_slider")
 metadata/_custom_type_script = "uid://clv4mgavtlrul"
 
-[node name="MusicVolumeValue" type="Label" parent="Margin/Panel/Rows/MusicVolumeRow"]
-custom_minimum_size = Vector2(50, 0)
+[node name="MusicVolumeValue" type="Label" parent="Background/Rows/MusicVolumeRow"]
+custom_minimum_size = Vector2(52, 0)
 layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 0
+theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
+theme_override_font_sizes/font_size = 13
 text = "100%"
 horizontal_alignment = 2
 
-[node name="SfxVolumeRow" type="HBoxContainer" parent="Margin/Panel/Rows"]
+[node name="SfxVolumeRow" type="HBoxContainer" parent="Background/Rows"]
 layout_mode = 2
+mouse_filter = 0
 theme_override_constants/separation = 12
 
-[node name="SfxVolumeLabel" type="Label" parent="Margin/Panel/Rows/SfxVolumeRow"]
-custom_minimum_size = Vector2(110, 0)
+[node name="SfxVolumeLabel" type="Label" parent="Background/Rows/SfxVolumeRow"]
+custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 0
+theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
+theme_override_font_sizes/font_size = 13
 text = "Sound effects"
 
-[node name="SfxVolume" type="HSlider" parent="Margin/Panel/Rows/SfxVolumeRow"]
-custom_minimum_size = Vector2(220, 0)
+[node name="SfxVolume" type="HSlider" parent="Background/Rows/SfxVolumeRow"]
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 0
 max_value = 100.0
 step = 1.0
 value = 100.0
-script = ExtResource("3_slider")
+script = ExtResource("4_slider")
 metadata/_custom_type_script = "uid://clv4mgavtlrul"
 
-[node name="SfxVolumeValue" type="Label" parent="Margin/Panel/Rows/SfxVolumeRow"]
-custom_minimum_size = Vector2(50, 0)
+[node name="SfxVolumeValue" type="Label" parent="Background/Rows/SfxVolumeRow"]
+custom_minimum_size = Vector2(52, 0)
 layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 0
+theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
+theme_override_font_sizes/font_size = 13
 text = "100%"
 horizontal_alignment = 2
 
-[node name="UiVolumeRow" type="HBoxContainer" parent="Margin/Panel/Rows"]
+[node name="UiVolumeRow" type="HBoxContainer" parent="Background/Rows"]
 layout_mode = 2
+mouse_filter = 0
 theme_override_constants/separation = 12
 
-[node name="UiVolumeLabel" type="Label" parent="Margin/Panel/Rows/UiVolumeRow"]
-custom_minimum_size = Vector2(110, 0)
+[node name="UiVolumeLabel" type="Label" parent="Background/Rows/UiVolumeRow"]
+custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 0
+theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
+theme_override_font_sizes/font_size = 13
 text = "Interface"
 
-[node name="UiVolume" type="HSlider" parent="Margin/Panel/Rows/UiVolumeRow"]
-custom_minimum_size = Vector2(220, 0)
+[node name="UiVolume" type="HSlider" parent="Background/Rows/UiVolumeRow"]
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 0
 max_value = 100.0
 step = 1.0
 value = 100.0
-script = ExtResource("3_slider")
+script = ExtResource("4_slider")
 metadata/_custom_type_script = "uid://clv4mgavtlrul"
 
-[node name="UiVolumeValue" type="Label" parent="Margin/Panel/Rows/UiVolumeRow"]
-custom_minimum_size = Vector2(50, 0)
+[node name="UiVolumeValue" type="Label" parent="Background/Rows/UiVolumeRow"]
+custom_minimum_size = Vector2(52, 0)
 layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 0
+theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
+theme_override_font_sizes/font_size = 13
 text = "100%"
 horizontal_alignment = 2
 
-[node name="AmbienceVolumeRow" type="HBoxContainer" parent="Margin/Panel/Rows"]
+[node name="AmbienceVolumeRow" type="HBoxContainer" parent="Background/Rows"]
 layout_mode = 2
+mouse_filter = 0
 theme_override_constants/separation = 12
 
-[node name="AmbienceVolumeLabel" type="Label" parent="Margin/Panel/Rows/AmbienceVolumeRow"]
-custom_minimum_size = Vector2(110, 0)
+[node name="AmbienceVolumeLabel" type="Label" parent="Background/Rows/AmbienceVolumeRow"]
+custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 0
+theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
+theme_override_font_sizes/font_size = 13
 text = "Ambience"
 
-[node name="AmbienceVolume" type="HSlider" parent="Margin/Panel/Rows/AmbienceVolumeRow"]
-custom_minimum_size = Vector2(220, 0)
+[node name="AmbienceVolume" type="HSlider" parent="Background/Rows/AmbienceVolumeRow"]
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 0
 max_value = 100.0
 step = 1.0
 value = 100.0
-script = ExtResource("3_slider")
+script = ExtResource("4_slider")
 metadata/_custom_type_script = "uid://clv4mgavtlrul"
 
-[node name="AmbienceVolumeValue" type="Label" parent="Margin/Panel/Rows/AmbienceVolumeRow"]
-custom_minimum_size = Vector2(50, 0)
+[node name="AmbienceVolumeValue" type="Label" parent="Background/Rows/AmbienceVolumeRow"]
+custom_minimum_size = Vector2(52, 0)
 layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 0
+theme_override_colors/font_color = Color(0.129412, 0.0980392, 0.054902, 1)
+theme_override_font_sizes/font_size = 13
 text = "100%"
 horizontal_alignment = 2
 
-[node name="FooterSeparator" type="HSeparator" parent="Margin/Panel/Rows"]
-layout_mode = 2
-
-[node name="Footer" type="HBoxContainer" parent="Margin/Panel/Rows"]
-layout_mode = 2
-alignment = 2
-
-[node name="Close" type="TextureButton" parent="Margin/Panel/Rows/Footer"]
-custom_minimum_size = Vector2(72, 19)
-layout_mode = 2
-script = ExtResource("4_close")
+[node name="Close" type="TextureButton" parent="Background"]
+layout_mode = 0
+offset_left = 952.0
+offset_top = 720.0
+offset_right = 1024.0
+offset_bottom = 768.0
+mouse_filter = 0
+script = ExtResource("5_close")

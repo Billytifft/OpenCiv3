@@ -583,7 +583,7 @@ public partial class Game : Node {
 		FileDialog.Popup();
 	}
 
-		public void OnOpenPreferences() {
+	public void OnOpenPreferences() {
 		popupOverlay.OnHidePopup();
 		preferences.ShowPreferences();
 	}

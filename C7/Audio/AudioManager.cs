@@ -86,7 +86,7 @@ public partial class AudioManager : Node {
 	 * Our users are probably more used to a 0% to 100% system.
 	 * So this method converts between them.
 	 */
-		public static float LogicalVolumeAsDecibel(int volume) {
+	public static float LogicalVolumeAsDecibel(int volume) {
 		if (volume <= 0) {
 			return float.MinValue;
 		}
