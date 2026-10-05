@@ -44,7 +44,7 @@ public partial class Civ3Checkbox : CheckBox {
 			}
 		}
 	}
-	private TextPosition _textPosition;
+	private TextPosition _textPosition = TextPosition.TextRightOfIcon;
 	[Export]
 	public TextPosition textPosition {
 		get => _textPosition;
