@@ -22,7 +22,7 @@ font_size = 10
 font_color = Color(0, 0, 0, 1)
 shadow_color = Color(1, 1, 1, 0.533333)
 
-[node name="MainMenu" type="Node" node_paths=PackedStringArray("LoadDialog", "NoCiv3Options", "SetCiv3HomeDialog", "LoadScenarioDialog", "ButtonContainer", "preferences")]
+[node name="MainMenu" type="Node" node_paths=PackedStringArray("LoadDialog", "NoCiv3Options", "SetCiv3HomeDialog", "LoadScenarioDialog", "ButtonContainer")]
 script = ExtResource("1_akneh")
 LoadDialog = NodePath("LoadDialog")
 NoCiv3Options = NodePath("Control/Background/PanelContainer/MarginContainer/NoCiv3Options")
@@ -147,6 +147,17 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_constants/separation = 15
 script = ExtResource("3_t1nuq")
+NewGame = null
+QuickStart = null
+Tutorial = null
+LoadGame = null
+LoadScenario = null
+HallOfFame = null
+ToggleGraphics = null
+Preferences = null
+AudioPreferences = null
+Credits = null
+Exit = null
 
 [node name="MarginContainer" type="MarginContainer" parent="Control/Background"]
 layout_mode = 1
