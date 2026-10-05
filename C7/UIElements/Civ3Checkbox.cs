@@ -13,8 +13,8 @@ public partial class Civ3Checkbox : CheckBox {
 	}
 
 	private Texture2D normalTexture = TextureLoader.Load("ui.checkbox.inactive");
-	private Texture2D hoverTexture = TextureLoader.Load("ui.checkbox.hover");
-	private Texture2D pressedTexture = TextureLoader.Load("ui.checkbox.pressed");
+	private Texture2D hoverTexture;
+	private Texture2D pressedTexture;
 
 	public Civ3Checkbox() {
 		normalTexture = TextureLoader.Load("ui.checkbox.inactive");
