@@ -29,7 +29,8 @@ function unit_icons:map_object_to_sprite(context)
     index = variations[key]
   end
     
-  -- TODO: add SCI leader logic
+  -- TODO: pick the "SCI" icon for scientific leaders. Which kind a unit is
+  -- comes from per unit data, and this layer is only handed the prototype.
 
   local x = 1 + (ICON_WIDTH + 1) * (index % ICONS_PER_ROW)
   local y = 1 + (ICON_HEIGHT + 1) * math.floor(index / ICONS_PER_ROW)

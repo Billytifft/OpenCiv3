@@ -72,5 +72,8 @@ namespace QueryCiv3.Sav {
 		public bool HasIDLSSection { get => Util.GetFlag(Flags3[3], 1); }
 
 		private fixed byte UnknownBuffer5[7];
+		// 1 military, 2 scientific, 0 otherwise. Verified in saves holding one of
+		// each. This is byte 3, not the record's last byte, which is always 0.
+		public byte LeaderKind { get => UnknownBuffer5[3]; }
 	}
 }
