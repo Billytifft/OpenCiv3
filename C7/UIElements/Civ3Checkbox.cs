@@ -12,14 +12,11 @@ public partial class Civ3Checkbox : CheckBox {
 		TextBelowIcon
 	}
 
-	private Texture2D normalTexture = TextureLoader.Load("ui.checkbox.inactive");
+	private Texture2D normalTexture;
 	private Texture2D hoverTexture;
 	private Texture2D pressedTexture;
 
 	public Civ3Checkbox() {
-		normalTexture = TextureLoader.Load("ui.checkbox.inactive");
-		hoverTexture = TextureLoader.Load("ui.checkbox.hover");
-		pressedTexture = TextureLoader.Load("ui.checkbox.pressed");
 	}
 
 	private string _text;
@@ -78,6 +75,10 @@ public partial class Civ3Checkbox : CheckBox {
 	}
 
 	public override void _Ready() {
+		normalTexture = TextureLoader.Load("ui.checkbox.inactive");
+		hoverTexture = TextureLoader.Load("ui.checkbox.hover");
+		pressedTexture = TextureLoader.Load("ui.checkbox.pressed");
+
 		fontColor = GetThemeColor("font_color", "Button");
 		hoverColor = GetThemeColor("font_hover_color", "Button");
 		pressedColor = GetThemeColor("font_pressed_color", "Button");
