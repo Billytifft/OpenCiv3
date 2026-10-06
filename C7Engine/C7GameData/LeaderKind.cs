@@ -1,8 +1,7 @@
 namespace C7GameData {
 
-	// Values match the raw byte Civ3 stores per unit, so an unrecognized value
-	// still round trips.
-	public enum LeaderKind : byte {
+	// Mirrors the raw save value, so an unknown kind still round trips.
+	public enum LeaderKind : int {
 		None = 0,
 		Military = 1,
 		Scientific = 2,

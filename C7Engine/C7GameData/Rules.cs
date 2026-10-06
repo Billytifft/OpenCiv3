@@ -26,5 +26,9 @@ namespace C7GameData {
 		public int RadarTileVisibility; // how many tiles, a unit with the Radar ability, can see ahead
 
 		public bool AllowScientificLeaders = true;
+
+		// -1 for no limit.
+		public int MaxScientificLeaders = 2;
+		public int MaxMilitaryLeaders = 1;
 	}
 }

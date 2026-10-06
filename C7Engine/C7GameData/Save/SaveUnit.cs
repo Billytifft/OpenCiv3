@@ -25,8 +25,7 @@ namespace C7GameData.Save {
 		// and automated exploring.
 		public bool isAutomated;
 
-		// A raw byte, not LeaderKind: an unknown kind must still round trip.
-		public byte leaderKind;
+		public int leaderKind;
 
 		public SaveUnit() { }
 
@@ -52,7 +51,7 @@ namespace C7GameData.Save {
 			movePointsRemaining = unit.movementPoints.remaining;
 			WorkerProgressTowardsJob = unit.WorkerProgressTowardsJob;
 			WorkerJob = unit.WorkerJob?.Id;
-			leaderKind = (byte)unit.leaderKind;
+			leaderKind = (int)unit.leaderKind;
 		}
 
 

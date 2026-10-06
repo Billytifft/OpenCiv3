@@ -177,8 +177,6 @@ namespace QueryCiv3.Biq {
 		public bool Teleportable { get => Util.GetFlag(Flags3[5], 7); }
 		public bool StealthAttack { get => Util.GetFlag(Flags3[6], 0); }
 		public bool Charm { get => Util.GetFlag(Flags3[6], 1); }
-		// Unnamed in the file format. Set only on the Leader prototype; believed
-		// to be the Science Age action.
 		public bool ScienceAge { get => Util.GetFlag(Flags3[6], 5); }
 
 		public bool BuildColony { get => Util.GetFlag(Flags3[8], 0); }

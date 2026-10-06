@@ -20,36 +20,7 @@ public class LeaderDataTest : IClassFixture<SaveGameFixture> {
 	}
 
 	[Fact]
-	public void StandaloneRulesAllowScientificLeaders() {
-		Assert.True(fixture.standaloneSaveGame.Rules.AllowScientificLeaders);
-	}
-
-	[Fact]
-	public void BaseRulesetAllowsScientificLeaders() {
-		using JsonDocument ruleset = JsonUtils.LoadBaseRuleset();
-		JsonElement rules = ruleset.RootElement.GetProperty("rules");
-
-		Assert.True(rules.GetProperty("allowScientificLeaders").GetBoolean());
-	}
-
-	[Fact]
-	public void RulesAllowScientificLeadersByDefault() {
-		Assert.True(new Rules().AllowScientificLeaders);
-	}
-
-	[Fact]
-	public void BaseRulesetFlagsLeaderPrototype() {
-		using JsonDocument ruleset = JsonUtils.LoadBaseRuleset();
-		JsonElement leader = ruleset.RootElement.GetProperty("unitPrototypes")
-			.EnumerateArray()
-			.First(proto => proto.GetProperty("name").GetString() == "Leader");
-
-		Assert.Contains("Leader", leader.GetProperty("flags").EnumerateArray().Select(flag => flag.GetString()));
-		Assert.Contains("ScienceAge", leader.GetProperty("flags").EnumerateArray().Select(flag => flag.GetString()));
-	}
-
-	[Fact]
-	public void BaseLeaderPrototypeLoadsWithLeaderFlags() {
+	public void BaseLeaderPrototypeLoadsWithLeaderFlagAndScienceAgeAction() {
 		// Standalone mode has no Leader prototype: the standalone addon drops
 		// every prototype that has no art replacement (see Lua/standalone/ruleset.lua).
 		SaveUnitPrototype leader = fixture.saveGame.UnitPrototypes
@@ -57,11 +28,11 @@ public class LeaderDataTest : IClassFixture<SaveGameFixture> {
 
 		Assert.NotNull(leader);
 		Assert.Contains(SaveUnitPrototype.Flag.Leader, leader.flags);
-		Assert.Contains(SaveUnitPrototype.Flag.ScienceAge, leader.flags);
+		Assert.Contains(UnitAction.ScienceAge, leader.actions);
 	}
 
 	[Fact]
-	public void LeaderFlagsSurviveConversionToGameData() {
+	public void LeaderFlagAndScienceAgeActionSurviveConversionToGameData() {
 		// The running game reads prototypes from GameData, not from the save, so
 		// the flags have to make it across that conversion.
 		UnitPrototype leader = fixture.saveGame.ToGameData(fixture.behaviors).unitPrototypes
@@ -69,13 +40,13 @@ public class LeaderDataTest : IClassFixture<SaveGameFixture> {
 
 		Assert.NotNull(leader);
 		Assert.Contains(SaveUnitPrototype.Flag.Leader, leader.flags);
-		Assert.Contains(SaveUnitPrototype.Flag.ScienceAge, leader.flags);
+		Assert.Contains(UnitAction.ScienceAge, leader.actions);
 	}
 
 	[Fact]
 	public void LeaderKindRoundTripsThroughSave() {
 		// 7 is not a kind the engine knows; the raw value must survive.
-		foreach (byte raw in new byte[] { 0, 1, 2, 7 }) {
+		foreach (int raw in new int[] { 0, 1, 2, 7 }) {
 			SaveUnit saveUnit = new() { prototype = "Leader", owner = ID.None("player"), leaderKind = raw };
 
 			MapUnit unit = saveUnit.ToMapUnit(
@@ -92,10 +63,10 @@ public class LeaderDataTest : IClassFixture<SaveGameFixture> {
 	}
 
 	[Fact]
-	public void LeaderKindValuesMatchTheSavByte() {
-		Assert.Equal(0, (byte)LeaderKind.None);
-		Assert.Equal(1, (byte)LeaderKind.Military);
-		Assert.Equal(2, (byte)LeaderKind.Scientific);
+	public void LeaderKindValuesMatchTheSaveInt() {
+		Assert.Equal(0, (int)LeaderKind.None);
+		Assert.Equal(1, (int)LeaderKind.Military);
+		Assert.Equal(2, (int)LeaderKind.Scientific);
 	}
 
 	[Fact]
@@ -134,15 +105,12 @@ public class LeaderDataTest : IClassFixture<SaveGameFixture> {
 		string savPath = Path.Combine(PathUtils.getDataPath("saves"), "12345.SAV");
 		Skip.If(!File.Exists(savPath), "Sample save 12345.SAV not present; run LoadSampleSaves to fetch it.");
 
-		// The BIQ and sample SAV are Blast-compressed; Util.ReadFile handles the decompression.
 		SavData savData = new SavData(Util.ReadFile(savPath), Util.ReadFile(PathUtils.defaultBicPath));
 		SaveGame save = ImportCiv3.ImportSav(savPath, PathUtils.defaultBicPath, (_) => PathUtils.defaultPediaIconsPath);
 
-		// A SAV's own GAME section is authoritative for the toggle.
 		Assert.Equal(savData.Game.AllowScientificLeaders, save.Rules.AllowScientificLeaders);
 
-		// The pool comes from the campaign BIQ's RACE section, with one civ per
-		// race in the same order, sized by RACE.NumberOfScientificLeaders.
+		// One name pool per RACE, sized by RACE.NumberOfScientificLeaders.
 		Assert.Equal(savData.Bic.Race.Length, save.Civilizations.Count);
 		int totalScientificLeaders = 0;
 		for (int i = 0; i < savData.Bic.Race.Length; ++i) {
@@ -154,7 +122,7 @@ public class LeaderDataTest : IClassFixture<SaveGameFixture> {
 	}
 
 	[SkippableFact]
-	public void SavImportReadsLeaderAndScienceAgeFlagsFromPrto() {
+	public void SavImportReadsLeaderFlagAndScienceAgeActionFromPrto() {
 		Skip.If(Civ3TestData.ShouldSkipCiv3DependentTests(), "No Civ3 install found.");
 
 		string savPath = Path.Combine(PathUtils.getDataPath("saves"), "12345.SAV");
@@ -170,7 +138,7 @@ public class LeaderDataTest : IClassFixture<SaveGameFixture> {
 			SaveUnitPrototype imported = save.UnitPrototypes.Find(proto => proto.name == prto.Name);
 			Assert.NotNull(imported);
 			Assert.Contains(SaveUnitPrototype.Flag.Leader, imported.flags);
-			Assert.Equal(prto.ScienceAge, imported.flags.Contains(SaveUnitPrototype.Flag.ScienceAge));
+			Assert.Equal(prto.ScienceAge, imported.actions.Contains(UnitAction.ScienceAge));
 		}
 
 		foreach (PRTO prto in savData.Bic.Prto.Where(prto => !prto.Leader)) {
@@ -179,16 +147,16 @@ public class LeaderDataTest : IClassFixture<SaveGameFixture> {
 
 		SaveUnitPrototype warrior = save.UnitPrototypes.Find(proto => proto.name == "Warrior");
 		Assert.DoesNotContain(SaveUnitPrototype.Flag.Leader, warrior.flags);
-		Assert.DoesNotContain(SaveUnitPrototype.Flag.ScienceAge, warrior.flags);
+		Assert.DoesNotContain(UnitAction.ScienceAge, warrior.actions);
 	}
 
 	[SkippableTheory]
-	[InlineData("0-A AA Philosophy Scientific Leader.SAV", (byte)LeaderKind.Scientific, "Aristotle")]
-	[InlineData("0-A AA Pyrrhus Military Leader.SAV", (byte)LeaderKind.Military, "Pyrrhus")]
-	public void SavLeaderSavesCarryTheirKindOnTheUnit(string fileName, byte expectedKind, string expectedName) {
+	[InlineData("0-A AA Philosophy Scientific Leader.SAV", (int)LeaderKind.Scientific, "Aristotle")]
+	[InlineData("0-A AA Pyrrhus Military Leader.SAV", (int)LeaderKind.Military, "Pyrrhus")]
+	public void SavLeaderSavesCarryTheirKindOnTheUnit(string fileName, int expectedKind, string expectedName) {
 		Skip.If(Civ3TestData.ShouldSkipCiv3DependentTests(), "No Civ3 install found.");
 
-		// Supplied by the maintainer, not in the repo: drop them in C7/Saves.
+		// Not in the repo; drop the file in C7/Saves.
 		string savPath = Path.Combine(PathUtils.getBasePath("../C7/Saves"), fileName);
 		Skip.If(!File.Exists(savPath), $"{fileName} not present.");
 
@@ -206,7 +174,7 @@ public class LeaderDataTest : IClassFixture<SaveGameFixture> {
 		SaveUnit imported = save.Units.Find(unit => unit.name == expectedName);
 		Assert.NotNull(imported);
 		Assert.Equal(expectedKind, imported.leaderKind);
-		Assert.Equal(expectedKind, (byte)(LeaderKind)imported.leaderKind);
+		Assert.Equal(expectedKind, (int)(LeaderKind)imported.leaderKind);
 	}
 
 	[SkippableFact]

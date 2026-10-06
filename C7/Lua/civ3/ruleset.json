@@ -4455,8 +4455,7 @@
       ],
       "unproducible": true,
       "flags": [
-        "Leader",
-        "ScienceAge"
+        "Leader"
       ],
       "categories": [
         "Land"
@@ -4468,7 +4467,8 @@
         "disband",
         "goto",
         "explore",
-        "load"
+        "load",
+        "scienceAge"
       ]
     },
     {
@@ -11238,7 +11238,9 @@
     "shieldRateForDisbanding": 0.25,
     "allowLesserUnitProduction": false,
     "radarTileVisibility": 2,
-    "allowScientificLeaders": true
+    "allowScientificLeaders": true,
+    "maxScientificLeaders": 2,
+    "maxMilitaryLeaders": 1
   },
   "timeOptions": {
     "baseUnit": "years",
