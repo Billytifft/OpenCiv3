@@ -11,6 +11,7 @@ namespace C7GameData {
 		public string Key { get; set; }
 		public string DisplayName { get; set; }
 		public string Body { get; set; }
+		public string Description { get; set; }
 	}
 
 	public class Codex {
@@ -61,6 +62,7 @@ namespace C7GameData {
 			CodexEntry currentEntry = null;
 			List<string> currentParagraphLines = null;
 			bool inGameConceptKeys = false;
+			bool inDescription = false;
 
 			foreach (string rawLine in content.Split('\n')) {
 				string line = rawLine.TrimEnd('\r');
@@ -72,7 +74,7 @@ namespace C7GameData {
 				if (line.StartsWith('#')) {
 					string header = line.Substring(1).Trim();
 					if (header == "GAME_CONCEPTS_KEYS") {
-						FlushParagraph(currentEntry, ref currentParagraphLines);
+						FlushParagraph(currentEntry, inDescription, ref currentParagraphLines);
 						inGameConceptKeys = true;
 						currentEntry = null;
 						currentParagraphLines = null;
@@ -80,9 +82,10 @@ namespace C7GameData {
 					}
 					inGameConceptKeys = false;
 
-					FlushParagraph(currentEntry, ref currentParagraphLines);
+					FlushParagraph(currentEntry, inDescription, ref currentParagraphLines);
 
-					string key = header.StartsWith("DESC_") ? header.Substring(5).Trim() : header;
+					inDescription = header.StartsWith("DESC_");
+					string key = inDescription ? header.Substring(5).Trim() : header;
 					currentEntry = GetOrCreateEntry(key);
 					currentParagraphLines = null;
 					continue;
@@ -102,9 +105,9 @@ namespace C7GameData {
 				if (line.StartsWith('^')) {
 					string text = line.Substring(1);
 					if (text.Length == 0) {
-						FlushParagraph(currentEntry, ref currentParagraphLines);
+						FlushParagraph(currentEntry, inDescription, ref currentParagraphLines);
 					} else {
-						FlushParagraph(currentEntry, ref currentParagraphLines);
+						FlushParagraph(currentEntry, inDescription, ref currentParagraphLines);
 						currentParagraphLines = new List<string> { text };
 					}
 					continue;
@@ -114,7 +117,7 @@ namespace C7GameData {
 					continue;
 				}
 
-				if (currentParagraphLines is null && currentEntry.Body is null && string.IsNullOrEmpty(currentEntry.DisplayName)) {
+				if (!inDescription && currentParagraphLines is null && currentEntry.Body is null && string.IsNullOrEmpty(currentEntry.DisplayName)) {
 					currentEntry.DisplayName = line.Trim();
 					continue;
 				}
@@ -123,17 +126,17 @@ namespace C7GameData {
 				currentParagraphLines.Add(line);
 			}
 
-			FlushParagraph(currentEntry, ref currentParagraphLines);
+			FlushParagraph(currentEntry, inDescription, ref currentParagraphLines);
 
 			foreach (string key in Entries.Keys.ToList()) {
 				CodexEntry entry = Entries[key];
-				if (string.IsNullOrEmpty(entry.DisplayName) && string.IsNullOrEmpty(entry.Body)) {
+				if (string.IsNullOrEmpty(entry.DisplayName) && string.IsNullOrEmpty(entry.Body) && string.IsNullOrEmpty(entry.Description)) {
 					Entries.Remove(key);
 				}
 			}
 		}
 
-		private static void FlushParagraph(CodexEntry entry, ref List<string> paragraphLines) {
+		private static void FlushParagraph(CodexEntry entry, bool inDescription, ref List<string> paragraphLines) {
 			if (entry is null || paragraphLines is null || paragraphLines.Count == 0) {
 				paragraphLines = null;
 				return;
@@ -149,7 +152,9 @@ namespace C7GameData {
 				joined = "## " + joined.Substring(1, joined.Length - 2).Trim();
 			}
 
-			entry.Body = entry.Body is null ? joined : entry.Body + "\n\n" + joined;
+			string target = inDescription ? entry.Description : entry.Body;
+			entry.Description = inDescription ? target is null ? joined : target + "\n\n" + joined : entry.Description;
+			entry.Body = inDescription ? entry.Body : target is null ? joined : target + "\n\n" + joined;
 			paragraphLines = null;
 		}
 

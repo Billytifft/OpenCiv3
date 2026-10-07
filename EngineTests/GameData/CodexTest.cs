@@ -57,7 +57,7 @@ public class CodexTest {
 	}
 
 	[Fact]
-	public void TestParseDescPageFoldsIntoBody() {
+	public void TestParseDescBlockKeptSeparateFromBody() {
 		const string sample = """
 		#GCON_Hotkeys_Units
 		Unit Hotkeys
@@ -75,9 +75,10 @@ public class CodexTest {
 		Assert.NotNull(entry);
 		Assert.Equal("Unit Hotkeys", entry.DisplayName);
 		Assert.Contains("Press the number keys to select a unit.", entry.Body);
-		Assert.Contains("## General Unit Commands", entry.Body);
-		Assert.DoesNotContain("{General Unit Commands}", entry.Body);
-		Assert.Contains("Press a number key to center the map", entry.Body);
+		Assert.DoesNotContain("Press a number key to center the map", entry.Body);
+		Assert.Contains("## General Unit Commands", entry.Description);
+		Assert.DoesNotContain("{General Unit Commands}", entry.Description);
+		Assert.Contains("Press a number key to center the map", entry.Description);
 	}
 
 	[Fact]
@@ -279,10 +280,19 @@ public class CodexTest {
 		Assert.NotNull(hotkeys);
 		Assert.Contains("## Settler / Worker Actions", hotkeys.Body);
 		Assert.Contains("## Air Missions", hotkeys.Body);
-		Assert.Contains("## General Unit Commands", hotkeys.Body);
-		Assert.DoesNotContain("{General Unit Commands}", hotkeys.Body);
-		Assert.Contains("Hold (don't move)", hotkeys.Body);
+		Assert.DoesNotContain("## General Unit Commands", hotkeys.Body);
+		Assert.Contains("## General Unit Commands", hotkeys.Description);
+		Assert.DoesNotContain("{General Unit Commands}", hotkeys.Description);
+		Assert.Contains("Hold (don't move)", hotkeys.Description);
 		Assert.Contains("\t", hotkeys.Body);
+		Assert.Contains("\t", hotkeys.Description);
+
+		CodexEntry walls = codex.GetEntry("BLDG_Walls");
+		Assert.NotNull(walls);
+		Assert.Contains("land bombardment defense", walls.Body);
+		Assert.Contains("50% defensive bonus", walls.Body);
+		Assert.NotNull(walls.Description);
+		Assert.Contains("city walls", walls.Description);
 
 		CodexEntry happyFaces = codex.GetEntry("GCON_Happy_Faces");
 		Assert.NotNull(happyFaces);
