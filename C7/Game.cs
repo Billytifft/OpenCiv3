@@ -585,7 +585,11 @@ public partial class Game : Node {
 
 	public void OnOpenPreferences() {
 		popupOverlay.OnHidePopup();
-		preferences.ShowPreferences();
+		if (preferences.Visible) {
+			preferences.HidePreferences();
+		} else {
+			preferences.ShowPreferences();
+		}
 	}
 
 	public void OnResolved() {
@@ -824,6 +828,15 @@ public partial class Game : Node {
 			ToggleObserverMode();
 		}
 
+		if (eventKeyDown.Keycode == Godot.Key.P && eventKeyDown.IsCommandOrControlPressed()) {
+			if (preferences.Visible) {
+				preferences.HidePreferences();
+			} else {
+				preferences.ShowPreferences();
+			}
+			return;
+		}
+
 		if (eventKeyDown.Keycode == Godot.Key.F1) {
 			EmitSignal(SignalName.ShowSpecificAdvisor, C7Action.ShowDomesticAdvisor);
 		}
@@ -998,7 +1011,11 @@ public partial class Game : Node {
 		}
 
 		if (currentAction == C7Action.OpenPreferences) {
-			preferences.ShowPreferences();
+			if (preferences.Visible) {
+				preferences.HidePreferences();
+			} else {
+				preferences.ShowPreferences();
+			}
 			return;
 		}
 

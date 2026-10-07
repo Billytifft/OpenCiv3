@@ -231,7 +231,6 @@ visible = false
 
 [node name="Preferences" parent="." instance=ExtResource("6_prefs")]
 visible = false
-layout_mode = 3
 
 [connection signal="pressed" from="Control/Background/PanelContainer/MarginContainer/NoCiv3Options/SetCiv3Home" to="." method="_on_SetCiv3Home_pressed"]
 [connection signal="pressed" from="Control/Background/PanelContainer/MarginContainer/NoCiv3Options/UseStandaloneMode" to="." method="UseStandaloneModePressed"]
