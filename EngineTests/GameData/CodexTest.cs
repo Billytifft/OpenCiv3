@@ -31,14 +31,12 @@ public class CodexTest {
 		CodexEntry entry = codex.GetEntry("TECH_Advanced_Flight");
 
 		Assert.NotNull(entry);
-		Assert.Single(entry.Pages);
-		Assert.Contains("[Workers](key:PRTO_Worker)", entry.Pages[0].Body);
-		Assert.Contains("[radar towers](key:GCON_Radar_Towers)", entry.Pages[0].Body);
-		Assert.DoesNotContain("$LINK", entry.Pages[0].Body);
-		Assert.Contains("can build", entry.Pages[0].Body);
-		Assert.Contains("{New Ability}", entry.Pages[0].Body);
-		Assert.Null(entry.Pages[0].Title);
-		Assert.Contains("Long paragraph that is wrapped across several lines and should be rejoined as one paragraph.", entry.Pages[0].Body);
+		Assert.Contains("[Workers](key:PRTO_Worker)", entry.Body);
+		Assert.Contains("[radar towers](key:GCON_Radar_Towers)", entry.Body);
+		Assert.DoesNotContain("$LINK", entry.Body);
+		Assert.Contains("can build", entry.Body);
+		Assert.Contains("{New Ability}", entry.Body);
+		Assert.Contains("Long paragraph that is wrapped across several lines and should be rejoined as one paragraph.", entry.Body);
 	}
 
 	[Fact]
@@ -55,12 +53,11 @@ public class CodexTest {
 		CodexEntry entry = codex.GetEntry("BLDG_Barracks");
 
 		Assert.NotNull(entry);
-		Assert.Single(entry.Pages);
-		Assert.Equal("A city with a Barracks produces veteran ground units completely in one turn.\n\nA city with a Barracks can be used to upgrade ground units.", entry.Pages[0].Body);
+		Assert.Equal("A city with a Barracks produces veteran ground units completely in one turn.\n\nA city with a Barracks can be used to upgrade ground units.", entry.Body);
 	}
 
 	[Fact]
-	public void TestParseSecondaryPages() {
+	public void TestParseDescPageFoldsIntoBody() {
 		const string sample = """
 		#GCON_Hotkeys_Units
 		Unit Hotkeys
@@ -77,9 +74,31 @@ public class CodexTest {
 
 		Assert.NotNull(entry);
 		Assert.Equal("Unit Hotkeys", entry.DisplayName);
-		Assert.Equal(2, entry.Pages.Count);
-		Assert.Equal("General Unit Commands", entry.Pages[1].Title);
-		Assert.Contains("Press a number key to center the map", entry.Pages[1].Body);
+		Assert.Contains("Press the number keys to select a unit.", entry.Body);
+		Assert.Contains("## General Unit Commands", entry.Body);
+		Assert.DoesNotContain("{General Unit Commands}", entry.Body);
+		Assert.Contains("Press a number key to center the map", entry.Body);
+	}
+
+	[Fact]
+	public void TestParseColumnRowsPreservedInBody() {
+		string sample =
+			"#GCON_Happy_Faces\n" +
+			"Happy Faces\n" +
+			"^\n" +
+			"^City improvements, wonders, entertainers, and luxuries produce faces.\n" +
+			"^{These\t\t\t\t\t\t\t\tProduce this}\n" +
+			"^* City improvements\t\t\t\t\t\tcontent faces\n" +
+			"^* Wonders\t\t\t\t\t\t\t\tcontent faces\n";
+
+		Codex codex = Codex.Parse(sample);
+		CodexEntry entry = codex.GetEntry("GCON_Happy_Faces");
+
+		Assert.NotNull(entry);
+		Assert.Equal("Happy Faces", entry.DisplayName);
+		Assert.Contains("{These\t\t\t\t\t\t\t\tProduce this}", entry.Body);
+		Assert.Contains("* City improvements\t\t\t\t\t\tcontent faces", entry.Body);
+		Assert.DoesNotContain("## These", entry.Body);
 	}
 
 	[Fact]
@@ -111,7 +130,7 @@ public class CodexTest {
 		CodexEntry entry = codex.GetEntry("GCON_Enslavement");
 
 		Assert.NotNull(entry);
-		Assert.Contains("[enslave](key:GCON_Enslavement)", entry.Pages[0].Body);
+		Assert.Contains("[enslave](key:GCON_Enslavement)", entry.Body);
 	}
 
 	[Fact]
@@ -145,7 +164,7 @@ public class CodexTest {
 		Codex codex = Codex.Parse(windows1252.GetString(bytes));
 
 		Assert.NotNull(codex.GetEntry("GCON_Test"));
-		Assert.Contains("\u2019 and \u201Cquote\u201D and \u00C0", codex.GetEntry("GCON_Test").Pages[0].Body);
+		Assert.Contains("\u2019 and \u201Cquote\u201D and \u00C0", codex.GetEntry("GCON_Test").Body);
 	}
 
 	[Fact]
@@ -167,6 +186,7 @@ public class CodexTest {
 
 		Assert.NotNull(entry);
 		Assert.Null(entry.DisplayName);
+		Assert.Equal("Body text.", entry.Body);
 	}
 
 	[SkippableFact]
@@ -217,6 +237,26 @@ public class CodexTest {
 	}
 
 	[SkippableFact]
+	public void TestImportToleratesMissingPediaIcons() {
+		Skip.If(Civ3TestData.ShouldSkipCiv3DependentTests(), "No Civ3 install found.");
+
+		string scenarioPath = Path.Combine(Civ3Location.GetCiv3Path(), "Conquests/Conquests", "2 Rise of Rome.biq");
+		Skip.If(!File.Exists(scenarioPath), "Rise of Rome scenario not present in this Civ3 installation.");
+
+		EngineStorage.animationsEnabled = false;
+
+		string missingPediaIcons = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString(), "PediaIcons.txt");
+
+		SaveGame save = ImportCiv3.ImportBiq(scenarioPath, Path.Combine(Civ3Location.GetCiv3Path(), "Conquests", "conquests.biq"),
+			realm => missingPediaIcons,
+			realm => Path.Combine(Civ3Location.GetCiv3Path(), "Conquests", "Text", "Civilopedia.txt"));
+
+		Assert.NotEmpty(save.UnitPrototypes);
+		Assert.NotEmpty(save.Buildings);
+		Assert.NotEmpty(save.Civilizations);
+	}
+
+	[SkippableFact]
 	public void TestParseRealCivilopediaFile() {
 		Skip.If(Civ3TestData.ShouldSkipCiv3DependentTests(), "No Civ3 install found.");
 
@@ -232,13 +272,23 @@ public class CodexTest {
 		Assert.Equal("Enslavement", codex.GetEntry("GCON_Enslavement").DisplayName);
 		Assert.NotNull(codex.GetEntry("RACE_AMERICAN"));
 
-		Assert.Contains("[Workers](key:PRTO_Worker)", codex.GetEntry("TECH_Advanced_Flight").Pages[0].Body);
-		Assert.DoesNotContain("$LINK", codex.GetEntry("TECH_Advanced_Flight").Pages[0].Body);
+		Assert.Contains("[Workers](key:PRTO_Worker)", codex.GetEntry("TECH_Advanced_Flight").Body);
+		Assert.DoesNotContain("$LINK", codex.GetEntry("TECH_Advanced_Flight").Body);
 
 		CodexEntry hotkeys = codex.GetEntry("GCON_Hotkeys_Units");
 		Assert.NotNull(hotkeys);
-		Assert.True(hotkeys.Pages.Count > 1);
-		Assert.Equal("General Unit Commands", hotkeys.Pages[1].Title);
+		Assert.Contains("## Settler / Worker Actions", hotkeys.Body);
+		Assert.Contains("## Air Missions", hotkeys.Body);
+		Assert.Contains("## General Unit Commands", hotkeys.Body);
+		Assert.DoesNotContain("{General Unit Commands}", hotkeys.Body);
+		Assert.Contains("Hold (don't move)", hotkeys.Body);
+		Assert.Contains("\t", hotkeys.Body);
+
+		CodexEntry happyFaces = codex.GetEntry("GCON_Happy_Faces");
+		Assert.NotNull(happyFaces);
+		Assert.Contains("{These", happyFaces.Body);
+		Assert.Contains("\t", happyFaces.Body);
+		Assert.DoesNotContain("## These", happyFaces.Body);
 
 		Assert.DoesNotContain(codex.Entries.Keys, key => key != key.Trim());
 		Assert.False(codex.Entries.ContainsKey("GAME_CONCEPTS"));

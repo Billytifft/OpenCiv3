@@ -7,15 +7,10 @@ using System.Text.RegularExpressions;
 using Serilog;
 
 namespace C7GameData {
-	public class CodexPage {
-		public string Title { get; set; }
-		public string Body { get; set; }
-	}
-
 	public class CodexEntry {
 		public string Key { get; set; }
 		public string DisplayName { get; set; }
-		public List<CodexPage> Pages { get; set; } = new();
+		public string Body { get; set; }
 	}
 
 	public class Codex {
@@ -64,7 +59,6 @@ namespace C7GameData {
 			}
 
 			CodexEntry currentEntry = null;
-			CodexPage currentPage = null;
 			List<string> currentParagraphLines = null;
 			bool inGameConceptKeys = false;
 
@@ -78,20 +72,18 @@ namespace C7GameData {
 				if (line.StartsWith('#')) {
 					string header = line.Substring(1).Trim();
 					if (header == "GAME_CONCEPTS_KEYS") {
-						FlushParagraph(currentPage, ref currentParagraphLines);
+						FlushParagraph(currentEntry, ref currentParagraphLines);
 						inGameConceptKeys = true;
-						currentPage = null;
+						currentEntry = null;
 						currentParagraphLines = null;
 						continue;
 					}
 					inGameConceptKeys = false;
 
-					FlushParagraph(currentPage, ref currentParagraphLines);
+					FlushParagraph(currentEntry, ref currentParagraphLines);
 
 					string key = header.StartsWith("DESC_") ? header.Substring(5).Trim() : header;
 					currentEntry = GetOrCreateEntry(key);
-					currentPage = new CodexPage();
-					currentEntry.Pages.Add(currentPage);
 					currentParagraphLines = null;
 					continue;
 				}
@@ -103,16 +95,16 @@ namespace C7GameData {
 					continue;
 				}
 
-				if (currentPage is null) {
+				if (currentEntry is null) {
 					continue;
 				}
 
 				if (line.StartsWith('^')) {
 					string text = line.Substring(1);
 					if (text.Length == 0) {
-						FlushParagraph(currentPage, ref currentParagraphLines);
+						FlushParagraph(currentEntry, ref currentParagraphLines);
 					} else {
-						FlushParagraph(currentPage, ref currentParagraphLines);
+						FlushParagraph(currentEntry, ref currentParagraphLines);
 						currentParagraphLines = new List<string> { text };
 					}
 					continue;
@@ -122,7 +114,7 @@ namespace C7GameData {
 					continue;
 				}
 
-				if (currentParagraphLines is null && currentPage.Body is null && string.IsNullOrEmpty(currentEntry.DisplayName)) {
+				if (currentParagraphLines is null && currentEntry.Body is null && string.IsNullOrEmpty(currentEntry.DisplayName)) {
 					currentEntry.DisplayName = line.Trim();
 					continue;
 				}
@@ -131,18 +123,18 @@ namespace C7GameData {
 				currentParagraphLines.Add(line);
 			}
 
-			FlushParagraph(currentPage, ref currentParagraphLines);
+			FlushParagraph(currentEntry, ref currentParagraphLines);
 
 			foreach (string key in Entries.Keys.ToList()) {
 				CodexEntry entry = Entries[key];
-				if (string.IsNullOrEmpty(entry.DisplayName) && entry.Pages.All(page => page.Title is null && string.IsNullOrEmpty(page.Body))) {
+				if (string.IsNullOrEmpty(entry.DisplayName) && string.IsNullOrEmpty(entry.Body)) {
 					Entries.Remove(key);
 				}
 			}
 		}
 
-		private static void FlushParagraph(CodexPage page, ref List<string> paragraphLines) {
-			if (page is null || paragraphLines is null || paragraphLines.Count == 0) {
+		private static void FlushParagraph(CodexEntry entry, ref List<string> paragraphLines) {
+			if (entry is null || paragraphLines is null || paragraphLines.Count == 0) {
 				paragraphLines = null;
 				return;
 			}
@@ -150,12 +142,14 @@ namespace C7GameData {
 			string joined = LinkRegex.Replace(string.Join(' ', paragraphLines), match =>
 				$"[{match.Groups[1].Value}](key:{match.Groups[2].Value.Trim()})");
 
-			if (page.Title is null && joined.StartsWith('{') && joined.EndsWith('}') && joined.Length > 2) {
-				page.Title = joined.Substring(1, joined.Length - 2).Trim();
-			} else {
-				page.Body = page.Body is null ? joined : page.Body + "\n\n" + joined;
+			// Civ3 uses a whole-line {Title} as a subheading within an entry.
+			// Column headers also use braces, but they contain tabs, so keep
+			// those as body text.
+			if (joined.StartsWith('{') && joined.EndsWith('}') && joined.Length > 2 && !joined.Contains('\t')) {
+				joined = "## " + joined.Substring(1, joined.Length - 2).Trim();
 			}
 
+			entry.Body = entry.Body is null ? joined : entry.Body + "\n\n" + joined;
 			paragraphLines = null;
 		}
 

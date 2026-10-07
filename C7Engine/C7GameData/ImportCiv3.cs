@@ -1563,7 +1563,7 @@ namespace C7GameData {
 				if (bldg.Name == "Wealth") {
 					SaveInflow inflow = new () {
 						name = bldg.Name,
-						iconRowIndex = pediaIcons.buildingToRowNumberMapping[bldg.CivilopediaEntry],
+						iconRowIndex = pediaIcons.GetBuildingRowNumber(bldg.CivilopediaEntry),
 						localYield = [
 							new SaveLocalYield(InflowYield.commerce, "inflows.result.wealth.commerce"),
 						],
@@ -1581,7 +1581,7 @@ namespace C7GameData {
 					greatWonderProperties=bldg.Wonder ? new SaveBuilding.GreatWonderProperties() : null,
 					culturePerTurn=bldg.Culture,
 					contentFacesInCity=bldg.ContentFaces - bldg.UnhappyFaces,
-					iconRowIndex=pediaIcons.buildingToRowNumberMapping[bldg.CivilopediaEntry],
+					iconRowIndex=pediaIcons.GetBuildingRowNumber(bldg.CivilopediaEntry),
 					combatDefenseBonus=bldg.DefenseBonus / 100.0,
 					maintenanceCost=bldg.MaintenanceCost,
 				};
@@ -1804,7 +1804,7 @@ namespace C7GameData {
 					Cost = t.Cost,
 					RequiredForEraAdvancement = !t.NotRequiredForEraAdvancement,
 					EraCivilopediaName = t.Era == -1 ? "Hidden" : theBiq.Eras[t.Era].CivilopediaEntry,
-					SmallIconPath = t.Era == -1 ? "" : pediaIcons.GetTechIconPath(t.CivilopediaEntry),
+					SmallIconPath = t.Era == -1 ? "" : pediaIcons.GetTechIconPath(t.CivilopediaEntry) ?? "",
 					X = t.X,
 					Y = t.Y,
 					flags = LoadTechFlags(t).ToHashSet(),
