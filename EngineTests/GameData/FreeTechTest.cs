@@ -127,6 +127,18 @@ public class FreeTechTest : IClassFixture<SaveGameFixture> {
 	}
 
 	[Fact]
+	public void AnAIResearchingSpendsItsFreeTechs() {
+		Player player = HumanPlayer();
+		player.isHuman = false;
+		player.freeTechsRemaining = 1;
+
+		PlayerAI.MaybePickTechToResearch(player, gameData.techs);
+
+		Assert.Equal(0, player.freeTechsRemaining);
+		Assert.NotEmpty(player.knownTechs);
+	}
+
+	[Fact]
 	public void FreeTechsSurviveASaveAndLoad() {
 		Player player = HumanPlayer();
 		Tech current = BasicTech();
