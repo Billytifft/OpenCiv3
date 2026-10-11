@@ -13152,7 +13152,7 @@
     },
     {
       "id": "Difficulty-8",
-      "name": "Sid",
+      "name": "Creator",
       "numberOfCitizensBornContent": 1,
       "maxAiGovernmentTransitionTime": 1,
       "numberOfAIDefensiveStartingUnits": 12,
@@ -13222,5 +13222,19 @@
       "distanceBetweenCivs": 24,
       "numberOfCivs": 16
     }
-  ]
+  ],
+  "victoryConditions": {
+    "allowDominationVictory": false,
+    "allowSpaceRaceVictory": false,
+    "allowDiplomaticVictory": false,
+    "allowConquestVictory": false,
+    "allowCulturalVictory": false,
+    "allowWonderVictory": false,
+    "cityElimination": false,
+    "regicide": false,
+    "massRegicide": false,
+    "victoryLocations": false,
+    "captureTheFlag": false,
+    "reverseCaptureTheFlag": false
+  }
 }

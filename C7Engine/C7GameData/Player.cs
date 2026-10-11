@@ -1191,11 +1191,14 @@ namespace C7GameData {
 			Difficulty difficulty = EngineStorage.gameData.gameDifficulty;
 			float costFactor = isHuman ? 1.0f : difficulty.AiCostFactor / (float)(difficulty.HumanCostFactor);
 
-			return producible.ShieldCost(civilization.traits, costFactor);
+			return producible.ShieldCost(this, costFactor);
 		}
 
 		public void UpdateHistory(GameData gameData) {
 			if (!gameData.history.ContainsKey(id.ToString()))
+				return;
+
+			if (gameData.gameOver) // Game is already over
 				return;
 
 			int n = gameData.history[id.ToString()].Count;
@@ -1212,10 +1215,8 @@ namespace C7GameData {
 			// Score is the _average_ of "turn scores".
 			// Here we calculate the cumulative moving average: S[n+1] = S[n] + (x[n+1] - S[N])/(n+1)
 			int lastScore = (lastTurn?.Score ?? 0);
-			// TODO: Victory scoring
-			// float turnScore = ScoreVictory.ComputeTurnScore(this, gameData);
-			// int score = (int) Math.Floor(lastScore + (turnScore - lastScore) / (1f * (n+1)));
-			int score = lastScore;
+			float turnScore = ScoreVictory.ComputeTurnScore(this, gameData);
+			int score = (int) Math.Floor(lastScore + (turnScore - lastScore) / (1f * (n+1)));
 
 			// Culture is "the sum of the cultural value of all your cities"
 			int totalCulture = cities.Sum(c => c.GetCulture());
