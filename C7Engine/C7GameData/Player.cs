@@ -297,7 +297,7 @@ namespace C7GameData {
 			// use a higher upper bound.
 			int refuseContactUntilTurn = currentTurn + new Random().Next(5, isSneakAttack ? 16 : 12);
 
-			DeclareWar(this, other, isSneakAttack, refuseContactUntilTurn);
+			DeclareWar(this, other, isSneakAttack, currentTurn, refuseContactUntilTurn);
 
 			// Whenever war is declared, re-evaluate priorities.
 			turnsUntilPriorityReevaluation = 0;
