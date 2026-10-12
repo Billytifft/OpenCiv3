@@ -9178,6 +9178,9 @@
       ],
       "traits": [
         "religious"
+      ],
+      "productionPrerequisites": [
+        "buildings.production_rules.forbidden_palace"
       ]
     },
     {
@@ -9659,6 +9662,9 @@
       "iconRowIndex": 56,
       "wonderFlags": [
         "forbiddenPalace"
+      ],
+      "productionPrerequisites": [
+        "buildings.production_rules.forbidden_palace"
       ]
     }
   ],

@@ -654,6 +654,36 @@ public class CityTest : MapBase {
 	}
 
 	[Fact]
+	public void ForbiddenPalaceRule_NeedsHalfTheOptimalCitiesAndACityWithoutThePalace() {
+		C7GameData.GameData gameData = new();
+		gameData.map.optimalNumberOfCities = 17;
+		C7Engine.EngineStorage.InitializeGameDataForTests(gameData);
+		BehaviorEngine behaviors = GameMode.Load(PathUtils.GameModesDir, new GameMode.Config("civ3")).behaviors;
+		Func<City, bool> forbiddenPalaceRule = behaviors.ImportFunc<Func<City, bool>>("buildings.production_rules.forbidden_palace");
+
+		// 17 / 2 rounded down means we need 8 cities.
+		Player player = MakePlayerForProduction();
+		List<City> cities = Enumerable.Range(0, 7).Select(i => MakeCity(player, $"City {i}")).ToList();
+		Assert.False(forbiddenPalaceRule(cities[0]));
+
+		cities.Add(MakeCity(player, "City 7"));
+		Assert.True(forbiddenPalaceRule(cities[0]));
+
+		// More cities than that is fine too.
+		cities.Add(MakeCity(player, "City 8"));
+		Assert.True(forbiddenPalaceRule(cities[0]));
+
+		// Not in the city with the center of the empire.
+		Building palace = MakeBuilding(new SaveBuilding {
+			name = "Palace",
+			flags = [SaveBuilding.Flag.IsCenterOfEmpire],
+		});
+		cities[0].constructed_buildings.Add(new CityBuilding { building = palace });
+		Assert.False(forbiddenPalaceRule(cities[0]));
+		Assert.True(forbiddenPalaceRule(cities[1]));
+	}
+
+	[Fact]
 	public void WithoutGoodsMustBeInCityRadius_AccessibleResourcesAreEnough() {
 		Resource iron = new() { Key = "iron" };
 		(City city, _) = MakeCityWithSurroundings(MakePlayerForProduction());

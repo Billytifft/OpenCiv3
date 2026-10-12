@@ -1814,6 +1814,10 @@ namespace C7GameData {
 					building.tileModifiers.Add($"buildings.tile_modifiers.{tileModifier}");
 				}
 			}
+
+			if (building.wonderFlags.Contains(SaveBuilding.WonderFlag.ForbiddenPalace)) {
+				building.productionPrerequisites.Add("buildings.production_rules.forbidden_palace");
+			}
 		}
 
 		private void ImportCiv3TerrainTypes() {
