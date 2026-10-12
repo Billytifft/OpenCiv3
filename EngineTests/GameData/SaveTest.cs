@@ -87,13 +87,19 @@ public class SaveTests : IClassFixture<SaveGameFixture> {
 
 			while (EngineStorage.TryDequeueNextMessageToUI(out MessageToUI msg)) {
 				switch (msg) {
+					case MsgNewGame mNG:
+						continue;
 					case MsgStartTurn mST:
 						return;
-					case MsgWarDeclaration mWD:
+					case MsgWarDeclarationNotification mWD:
 						continue;
 					case MsgShowTemporaryPopup mSTP:
 						continue;
+					case MsgCityRaised mCR:
+						continue;
 					case MsgCityDestroyed mCD:
+						continue;
+					case MsgCityRansacked mCRS:
 						continue;
 					case MsgCivilizationDestroyed mCVD:
 						continue;
@@ -240,7 +246,7 @@ public class SaveTests : IClassFixture<SaveGameFixture> {
 
 		// Load the saved game and save it again.
 		string roundTrippedSavePath = PathUtils.getDataPath($"output/headless-game-round-tripped-save-{outputFilePostfix}.json");
-		C7GameData.GameData roundTrippedGameData = ToGameData(SaveGame.Load(outputDirectSavePath, (string unused) => { return unused; }));
+		C7GameData.GameData roundTrippedGameData = ToGameData(SaveGame.Load(outputDirectSavePath, (string unused) => { return unused; }, (string unused) => { return unused; }));
 		SaveGame.FromGameData(roundTrippedGameData).Save(roundTrippedSavePath);
 
 		string[] directSaveLines = File.ReadAllLines(outputDirectSavePath);
@@ -436,6 +442,8 @@ public class SaveTests : IClassFixture<SaveGameFixture> {
 			Exception ex = Record.Exception(() => {
 				game = ImportCiv3.ImportSav(saveFileInfo.FullName, PathUtils.defaultBicPath, (relativeModePath) => {
 					return PathUtils.defaultPediaIconsPath;
+				}, (relativeModePath) => {
+					return PathUtils.defaultCivilopediaTextPath;
 				});
 			});
 			Assert.Null(ex);
@@ -523,10 +531,14 @@ public class SaveTests : IClassFixture<SaveGameFixture> {
 				return Path.GetFullPath(Path.Combine(Civ3Location.GetCiv3Path(), subfolder, relativeModPath, "Text", "PediaIcons.txt"));
 			};
 
+			Func<string, string> getCivilopediaTextPath = (relativeModPath) => {
+				return Path.Combine(Civ3Location.GetCiv3Path(), subfolder, "Conquests", "Text", "Civilopedia.txt");
+			};
+
 			EngineStorage.animationsEnabled = false;
 
 			Exception ex = Record.Exception(() => {
-				game = ImportCiv3.ImportBiq(saveFileInfo.FullName, PathUtils.defaultBicPath, getPediaIconsPath);
+				game = ImportCiv3.ImportBiq(saveFileInfo.FullName, PathUtils.defaultBicPath, getPediaIconsPath, getCivilopediaTextPath);
 			});
 			Assert.True(ex == null, name + ": " + ex?.ToString());
 			ex = Record.Exception(() => {
