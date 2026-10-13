@@ -1,12 +1,13 @@
 -- Base paths
 local SOUNDS = "Sounds/"
 local MENU = SOUNDS .. "Menu/"
+local AMBIENCE = SOUNDS .. "Ambience Sfx/"
 
 -- Audio definitions
 local audio = {}
 
-audio.menu = {
-  main_menu_1 = MENU .. "Menu1.mp3"
+audio.ambience = {
+  oriole = AMBIENCE .. "Oriole.wav"
 }
 
 audio.buttons = {
@@ -20,6 +21,16 @@ audio.buttons = {
     The gap at the end of the name is intentional.
   --]=====]
   button_cancel = SOUNDS .. "ButtonCancelX .wav",
+}
+
+audio.extra = {
+  warrior = {
+    victory = SOUNDS .. "QualeWarriorVictory.wav"
+  }
+}
+
+audio.menu = {
+  main_menu_1 = MENU .. "Menu1.mp3"
 }
 
 audio.popups = {
