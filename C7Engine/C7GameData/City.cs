@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Serilog;
 using C7Engine;
+using C7GameData.Save;
 using MoonSharp.Interpreter;
 
 namespace C7GameData {
@@ -883,7 +884,7 @@ namespace C7GameData {
 			int numAntiCorruptionBuildings = buildings.Count(x => x.building.reducesCorruption);
 
 			// TODO: Handle the SPHQ.
-			int numCorruptionReducingSmallWondersInCity = buildings.Count(x => x.building.isForbiddenPalace);
+			int numCorruptionReducingSmallWondersInCity = buildings.Count(x => x.building.HasWonderFlag(SaveBuilding.WonderFlag.ReducesCorruption));
 
 			corruption = CalculateDistanceCorruption(numAntiCorruptionBuildings)
 					+ CalculateRankCorruption(gameData, numAntiCorruptionBuildings);

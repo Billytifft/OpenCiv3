@@ -91,7 +91,7 @@ namespace C7GameData {
 		public bool canMeltdown;
 		public bool removesPopulationPollution;
 		public bool reducesBuildingPollution;
-		public bool resistantToBribery;
+		public bool resistantToPropaganda;
 
 		// TODO: Wire up water and air trade to the trade network (see the
 		// harbor and airport TODO in TradeNetwork), and war weariness to the
@@ -139,50 +139,24 @@ namespace C7GameData {
 		// onFinishedUnitProduction, which City.AddUnit applies to new units.
 		public bool providesVeteranGroundUnits;
 
-		// Wonder flags, shared by small and great wonders.
+		// Wonder flags, shared by small and great wonders. Use HasWonderFlag.
 		//
 		// Implemented flags:
-		// - treasuryEarnsInterest: the treasury interest in Player.
-		// - isForbiddenPalace: the corruption calculations in City and Player.
-		// - buildSpaceshipParts: the spaceship part check in CanProduce.
-		public bool treasuryEarnsInterest;
-		public bool isForbiddenPalace;
-		public bool buildSpaceshipParts;
-
-		// This field is purely for matching the BIQ format. The actual science
-		// bonus is captured in researchBonus.
-		public bool doublesResearchOutput;
-
-		// TODO: These are not tracked yet, so CanProduce currently refuses to
-		// build anything with either flag. Update that check when armies and
-		// elite ships are tracked on the player.
-		public bool requiresVictoriousArmy;
-		public bool requiresEliteShip;
-
+		// - TreasuryEarnsInterest: the treasury interest in Player.
+		// - ReducesCorruption: the corruption calculations in City and Player,
+		//   and the production rule for the Forbidden Palace.
+		// - BuildSpaceshipParts: the spaceship part check in CanProduce.
+		//
+		// DoublesResearchOutput is purely for matching the BIQ format. The actual
+		// science bonus is captured in researchBonus.
+		//
+		// TODO: RequiresVictoriousArmy and RequiresEliteShip are not tracked yet,
+		// so CanProduce currently refuses to build anything with either flag.
+		// Update that check when armies and elite ships are tracked on the player.
+		//
 		// TODO: Wire up the remaining flags to actual in-game logic and bonuses.
 		// They are inert for now.
-		public bool increasesLeaderChance;
-		public bool allowsBuildArmy;
-		public bool allowsLargerArmies;
-		public bool decreasesMissileSuccess;
-		public bool allowsSpyMissions;
-		public bool allowsEnemyTerritoryHealing;
-		public bool safeSeaTravel;
-		public bool gainAnyTechKnownByTwoCivs;
-		public bool doubleCombatVsBarbarians;
-		public bool increasedShipMovement;
-		public bool increasedTrade;
-		public bool cheaperUpgrades;
-		public bool paysTradeMaintenance;
-		public bool allowsNuclearWeapons;
-		public bool doubleCityGrowth;
-		public bool twoFreeAdvances;
-		public bool reducedWarWeariness;
-		public bool doubleCityDefenses;
-		public bool allowDiplomaticVictory;
-		public bool plusTwoShipMovement;
-		public bool increasedArmyValue;
-		public bool touristAttraction;
+		public HashSet<SaveBuilding.WonderFlag> wonderFlags;
 
 		public int culturePerTurn = 0;
 		public int maintenanceCost = 0;
@@ -266,7 +240,7 @@ namespace C7GameData {
 			canMeltdown = building.flags.Contains(SaveBuilding.Flag.CanMeltdown);
 			removesPopulationPollution = building.flags.Contains(SaveBuilding.Flag.RemovesPopulationPollution);
 			reducesBuildingPollution = building.flags.Contains(SaveBuilding.Flag.ReducesBuildingPollution);
-			resistantToBribery = building.flags.Contains(SaveBuilding.Flag.ResistantToBribery);
+			resistantToPropaganda = building.flags.Contains(SaveBuilding.Flag.ResistantToPropaganda);
 			allowsWaterTrade = building.flags.Contains(SaveBuilding.Flag.AllowsWaterTrade);
 			allowsAirTrade = building.flags.Contains(SaveBuilding.Flag.AllowsAirTrade);
 			reducesWarWeariness = building.flags.Contains(SaveBuilding.Flag.ReducesWarWeariness);
@@ -274,35 +248,7 @@ namespace C7GameData {
 			continentalMoodEffects = building.flags.Contains(SaveBuilding.Flag.ContinentalMoodEffects);
 			providesVeteranGroundUnits = building.flags.Contains(SaveBuilding.Flag.VeteranGroundUnits);
 
-			var wonderFlags = building.wonderFlags;
-			increasesLeaderChance = wonderFlags.Contains(SaveBuilding.WonderFlag.IncreasesLeaderChance);
-			allowsBuildArmy = wonderFlags.Contains(SaveBuilding.WonderFlag.AllowsBuildArmy);
-			allowsLargerArmies = wonderFlags.Contains(SaveBuilding.WonderFlag.AllowsLargerArmies);
-			treasuryEarnsInterest = wonderFlags.Contains(SaveBuilding.WonderFlag.TreasuryEarnsInterest);
-			buildSpaceshipParts = wonderFlags.Contains(SaveBuilding.WonderFlag.BuildSpaceshipParts);
-			isForbiddenPalace = wonderFlags.Contains(SaveBuilding.WonderFlag.ForbiddenPalace);
-			decreasesMissileSuccess = wonderFlags.Contains(SaveBuilding.WonderFlag.DecreasesMissileSuccess);
-			allowsSpyMissions = wonderFlags.Contains(SaveBuilding.WonderFlag.AllowsSpyMissions);
-			allowsEnemyTerritoryHealing = wonderFlags.Contains(SaveBuilding.WonderFlag.AllowsEnemyTerritoryHealing);
-			requiresVictoriousArmy = wonderFlags.Contains(SaveBuilding.WonderFlag.RequiresVictoriousArmy);
-			requiresEliteShip = wonderFlags.Contains(SaveBuilding.WonderFlag.RequiresEliteShip);
-			safeSeaTravel = wonderFlags.Contains(SaveBuilding.WonderFlag.SafeSeaTravel);
-			gainAnyTechKnownByTwoCivs = wonderFlags.Contains(SaveBuilding.WonderFlag.GainAnyTechKnownByTwoCivs);
-			doubleCombatVsBarbarians = wonderFlags.Contains(SaveBuilding.WonderFlag.DoubleCombatVsBarbarians);
-			increasedShipMovement = wonderFlags.Contains(SaveBuilding.WonderFlag.IncreasedShipMovement);
-			doublesResearchOutput = wonderFlags.Contains(SaveBuilding.WonderFlag.DoublesResearchOutput);
-			increasedTrade = wonderFlags.Contains(SaveBuilding.WonderFlag.IncreasedTrade);
-			cheaperUpgrades = wonderFlags.Contains(SaveBuilding.WonderFlag.CheaperUpgrades);
-			paysTradeMaintenance = wonderFlags.Contains(SaveBuilding.WonderFlag.PaysTradeMaintenance);
-			allowsNuclearWeapons = wonderFlags.Contains(SaveBuilding.WonderFlag.AllowsNuclearWeapons);
-			doubleCityGrowth = wonderFlags.Contains(SaveBuilding.WonderFlag.DoubleCityGrowth);
-			twoFreeAdvances = wonderFlags.Contains(SaveBuilding.WonderFlag.TwoFreeAdvances);
-			reducedWarWeariness = wonderFlags.Contains(SaveBuilding.WonderFlag.ReducedWarWeariness);
-			doubleCityDefenses = wonderFlags.Contains(SaveBuilding.WonderFlag.DoubleCityDefenses);
-			allowDiplomaticVictory = wonderFlags.Contains(SaveBuilding.WonderFlag.AllowDiplomaticVictory);
-			plusTwoShipMovement = wonderFlags.Contains(SaveBuilding.WonderFlag.PlusTwoShipMovement);
-			increasedArmyValue = wonderFlags.Contains(SaveBuilding.WonderFlag.IncreasedArmyValue);
-			touristAttraction = wonderFlags.Contains(SaveBuilding.WonderFlag.TouristAttraction);
+			wonderFlags = new(building.wonderFlags);
 
 			if (building.greatWonderProperties != null) {
 				greatWonderProperties = new();
@@ -314,6 +260,10 @@ namespace C7GameData {
 		[LuaMethod]
 		public bool IsGreatWonder() {
 			return this.greatWonderProperties != null;
+		}
+
+		public bool HasWonderFlag(SaveBuilding.WonderFlag flag) {
+			return wonderFlags.Contains(flag);
 		}
 
 		public bool CanProduce(City city, HashSet<Resource> accessibleResources) {
@@ -355,7 +305,7 @@ namespace C7GameData {
 
 			// Spaceship parts can only be built once we have built the small
 			// wonder that allows building them.
-			if (spaceshipPart != null && !city.owner.OwnsBuilding(b => b.buildSpaceshipParts)) {
+			if (spaceshipPart != null && !city.owner.OwnsBuilding(b => b.HasWonderFlag(SaveBuilding.WonderFlag.BuildSpaceshipParts))) {
 				return false;
 			}
 
@@ -381,7 +331,7 @@ namespace C7GameData {
 
 			// TODO: Victorious armies and elite ships are not yet tracked on the
 			// player, so we refuse to build these. Update this logic when they are.
-			if (requiresEliteShip || requiresVictoriousArmy) {
+			if (HasWonderFlag(SaveBuilding.WonderFlag.RequiresEliteShip) || HasWonderFlag(SaveBuilding.WonderFlag.RequiresVictoriousArmy)) {
 				return false;
 			}
 

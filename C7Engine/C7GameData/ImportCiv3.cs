@@ -1715,7 +1715,7 @@ namespace C7GameData {
 				(bldg.CanMeltdown, SaveBuilding.Flag.CanMeltdown),
 				(bldg.RemovesPopulationPollution, SaveBuilding.Flag.RemovesPopulationPollution),
 				(bldg.ReducesBuildingPollution, SaveBuilding.Flag.ReducesBuildingPollution),
-				(bldg.ResistantToBribery, SaveBuilding.Flag.ResistantToBribery),
+				(bldg.ResistantToBribery, SaveBuilding.Flag.ResistantToPropaganda),
 				(bldg.AllowsWaterTrade, SaveBuilding.Flag.AllowsWaterTrade),
 				(bldg.AllowsAirTrade, SaveBuilding.Flag.AllowsAirTrade),
 				(bldg.ReducesWarWeariness, SaveBuilding.Flag.ReducesWarWeariness),
@@ -1733,7 +1733,7 @@ namespace C7GameData {
 				(bldg.AllowsLargerArmies, SaveBuilding.WonderFlag.AllowsLargerArmies),
 				(bldg.TreasuryEarnsInterest, SaveBuilding.WonderFlag.TreasuryEarnsInterest),
 				(bldg.BuildSpaceshipParts, SaveBuilding.WonderFlag.BuildSpaceshipParts),
-				(bldg.ForbiddenPalace, SaveBuilding.WonderFlag.ForbiddenPalace),
+				(bldg.ForbiddenPalace, SaveBuilding.WonderFlag.ReducesCorruption),
 				(bldg.DecreasesMissileSuccess, SaveBuilding.WonderFlag.DecreasesMissileSuccess),
 				(bldg.AllowsSpyMissions, SaveBuilding.WonderFlag.AllowsSpyMissions),
 				(bldg.AllowsEnemyTerritoryHealing, SaveBuilding.WonderFlag.AllowsEnemyTerritoryHealing),
@@ -1744,13 +1744,13 @@ namespace C7GameData {
 				(bldg.DoubleCombatVsBarbarians, SaveBuilding.WonderFlag.DoubleCombatVsBarbarians),
 				(bldg.IncreasedShipMovement, SaveBuilding.WonderFlag.IncreasedShipMovement),
 				(bldg.DoublesResearchOutput, SaveBuilding.WonderFlag.DoublesResearchOutput),
-				(bldg.IncreasedTrade, SaveBuilding.WonderFlag.IncreasedTrade),
+				(bldg.IncreasedTrade, SaveBuilding.WonderFlag.IncreasedTradeInTilesProducingCommerce),
 				(bldg.CheaperUpgrades, SaveBuilding.WonderFlag.CheaperUpgrades),
 				(bldg.PaysTradeMaintenance, SaveBuilding.WonderFlag.PaysTradeMaintenance),
 				(bldg.AllowsNuclearWeapons, SaveBuilding.WonderFlag.AllowsNuclearWeapons),
-				(bldg.DoubleCityGrowth, SaveBuilding.WonderFlag.DoubleCityGrowth),
+				(bldg.DoubleCityGrowth, SaveBuilding.WonderFlag.CityGrowthPlusTwoCitizens),
 				(bldg.TwoFreeAdvances, SaveBuilding.WonderFlag.TwoFreeAdvances),
-				(bldg.ReducedWarWeariness, SaveBuilding.WonderFlag.ReducedWarWeariness),
+				(bldg.ReducedWarWeariness, SaveBuilding.WonderFlag.ReducesWarWearinessAllCities),
 				(bldg.DoubleCityDefenses, SaveBuilding.WonderFlag.DoubleCityDefenses),
 				(bldg.AllowDiplomaticVictory, SaveBuilding.WonderFlag.AllowDiplomaticVictory),
 				(bldg.PlusTwoShipMovement, SaveBuilding.WonderFlag.PlusTwoShipMovement),
@@ -1815,8 +1815,17 @@ namespace C7GameData {
 				}
 			}
 
-			if (building.wonderFlags.Contains(SaveBuilding.WonderFlag.ForbiddenPalace)) {
-				building.productionPrerequisites.Add("buildings.production_rules.forbidden_palace");
+			// Buildings that act as an extra palace for corruption all share one
+			// wonder flag, but each can have its own production rule. Any other
+			// building with the flag uses the Forbidden Palace rule.
+			if (building.wonderFlags.Contains(SaveBuilding.WonderFlag.ReducesCorruption)) {
+				var civilopediaEntryToProductionRule = new Dictionary<string, string>
+				{
+					{ "BLDG_Forbidden_Palace", "forbidden_palace" },
+					{ "BLDG_Secret_Police_HQ", "secret_police_hq" },
+				};
+				string productionRule = civilopediaEntryToProductionRule.GetValueOrDefault(building.civilopediaEntry ?? "", "forbidden_palace");
+				building.productionPrerequisites.Add($"buildings.production_rules.{productionRule}");
 			}
 		}
 

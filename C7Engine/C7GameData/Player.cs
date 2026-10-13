@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using C7Engine.AI.StrategicAI;
 using C7Engine;
+using C7GameData.Save;
 using MoonSharp.Interpreter;
 using Serilog;
 using static C7GameData.EraUtils;
@@ -439,7 +440,7 @@ namespace C7GameData {
 				result.wealthProduction += cityCommerce.wealth;
 
 				// TODO: Skip obsolete buildings (see Building.IsObsolete).
-				interestBuildings += city.constructed_buildings.Count(cb => cb.building.treasuryEarnsInterest);
+				interestBuildings += city.constructed_buildings.Count(cb => cb.building.HasWonderFlag(SaveBuilding.WonderFlag.TreasuryEarnsInterest));
 
 				foreach (CityResident cr in city.residents) {
 					// Split city income into "regular citizen" and "tax collector" buckets
@@ -688,7 +689,7 @@ namespace C7GameData {
 				// doing extra work for each city.
 				foreach (CityBuilding cb in c.constructed_buildings) {
 					// TODO: Skip obsolete buildings (see Building.IsObsolete).
-					if (cb.building.isForbiddenPalace) {
+					if (cb.building.HasWonderFlag(SaveBuilding.WonderFlag.ReducesCorruption)) {
 						++numCorruptionReducingSmallWondersInEmpire;
 					}
 				}
@@ -1011,7 +1012,7 @@ namespace C7GameData {
 				// supply small wonders like forbidden palaces, so we can avoid
 				// doing extra work for each city.
 				// TODO: Skip obsolete buildings (see Building.IsObsolete).
-				if (c.constructed_buildings.Any(x => x.building.isForbiddenPalace)) {
+				if (c.constructed_buildings.Any(x => x.building.HasWonderFlag(SaveBuilding.WonderFlag.ReducesCorruption))) {
 					citiesWithCorruptionWonders.Add(c);
 				}
 			}

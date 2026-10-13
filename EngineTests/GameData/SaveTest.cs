@@ -161,9 +161,9 @@ public class SaveTests : IClassFixture<SaveGameFixture> {
 		Assert.Equal(buildings["Cathedral"], buildings["Sistine Chapel"].greatWonderProperties.buildingWithDoubledHappiness);
 		Assert.Null(buildings["The Pyramids"].greatWonderProperties.buildingWithDoubledHappiness);
 
-		Assert.True(buildings["Wall Street"].treasuryEarnsInterest);
-		Assert.True(buildings["Forbidden Palace"].isForbiddenPalace);
-		Assert.True(buildings["Secret Police HQ"].isForbiddenPalace);
+		Assert.True(buildings["Wall Street"].HasWonderFlag(SaveBuilding.WonderFlag.TreasuryEarnsInterest));
+		Assert.True(buildings["Forbidden Palace"].HasWonderFlag(SaveBuilding.WonderFlag.ReducesCorruption));
+		Assert.True(buildings["Secret Police HQ"].HasWonderFlag(SaveBuilding.WonderFlag.ReducesCorruption));
 		Assert.Equal("Communism", buildings["Secret Police HQ"].requiredGovernment.name);
 		Assert.Null(buildings["Forbidden Palace"].requiredGovernment);
 		Assert.True(buildings["Iron Works"].goodsMustBeInCityRadius);

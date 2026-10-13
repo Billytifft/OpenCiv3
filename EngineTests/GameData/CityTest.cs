@@ -275,23 +275,23 @@ public class CityTest : MapBase {
 	}
 
 	[Fact]
-	public void WonderFlags_AreMappedToBuildingBools() {
+	public void WonderFlags_AreMappedToTheBuilding() {
 		Building building = MakeBuilding(new SaveBuilding {
 			name = "Test Wonder",
 			isSmallWonder = true,
 			wonderFlags = [
 				SaveBuilding.WonderFlag.TreasuryEarnsInterest,
-				SaveBuilding.WonderFlag.ForbiddenPalace,
+				SaveBuilding.WonderFlag.ReducesCorruption,
 				SaveBuilding.WonderFlag.SafeSeaTravel,
 			],
 		});
 
-		Assert.True(building.treasuryEarnsInterest);
-		Assert.True(building.isForbiddenPalace);
-		Assert.True(building.safeSeaTravel);
+		Assert.True(building.HasWonderFlag(SaveBuilding.WonderFlag.TreasuryEarnsInterest));
+		Assert.True(building.HasWonderFlag(SaveBuilding.WonderFlag.ReducesCorruption));
+		Assert.True(building.HasWonderFlag(SaveBuilding.WonderFlag.SafeSeaTravel));
 
-		Assert.False(building.doublesResearchOutput);
-		Assert.False(building.allowsBuildArmy);
+		Assert.False(building.HasWonderFlag(SaveBuilding.WonderFlag.DoublesResearchOutput));
+		Assert.False(building.HasWonderFlag(SaveBuilding.WonderFlag.AllowsBuildArmy));
 		Assert.False(building.goodsMustBeInCityRadius);
 	}
 
@@ -445,7 +445,7 @@ public class CityTest : MapBase {
 		});
 
 		Assert.True(building.goodsMustBeInCityRadius);
-		Assert.False(building.treasuryEarnsInterest);
+		Assert.False(building.HasWonderFlag(SaveBuilding.WonderFlag.TreasuryEarnsInterest));
 	}
 
 	private static Building MakeRadiusBuilding(params Resource[] required) {
@@ -654,33 +654,37 @@ public class CityTest : MapBase {
 	}
 
 	[Fact]
-	public void ForbiddenPalaceRule_NeedsHalfTheOptimalCitiesAndACityWithoutThePalace() {
+	public void ForbiddenPalaceAndSecretPoliceRules_NeedHalfTheOptimalCitiesAndACityWithoutThePalace() {
 		C7GameData.GameData gameData = new();
 		gameData.map.optimalNumberOfCities = 17;
 		C7Engine.EngineStorage.InitializeGameDataForTests(gameData);
 		BehaviorEngine behaviors = GameMode.Load(PathUtils.GameModesDir, new GameMode.Config("civ3")).behaviors;
-		Func<City, bool> forbiddenPalaceRule = behaviors.ImportFunc<Func<City, bool>>("buildings.production_rules.forbidden_palace");
 
-		// 17 / 2 rounded down means we need 8 cities.
-		Player player = MakePlayerForProduction();
-		List<City> cities = Enumerable.Range(0, 7).Select(i => MakeCity(player, $"City {i}")).ToList();
-		Assert.False(forbiddenPalaceRule(cities[0]));
+		// Both rules are written out separately for moddability, but should behave the same.
+		foreach (string ruleName in new[] { "forbidden_palace", "secret_police_hq" }) {
+			Func<City, bool> rule = behaviors.ImportFunc<Func<City, bool>>($"buildings.production_rules.{ruleName}");
 
-		cities.Add(MakeCity(player, "City 7"));
-		Assert.True(forbiddenPalaceRule(cities[0]));
+			// 17 / 2 rounded down means we need 8 cities.
+			Player player = MakePlayerForProduction();
+			List<City> cities = Enumerable.Range(0, 7).Select(i => MakeCity(player, $"City {i}")).ToList();
+			Assert.False(rule(cities[0]), ruleName);
 
-		// More cities than that is fine too.
-		cities.Add(MakeCity(player, "City 8"));
-		Assert.True(forbiddenPalaceRule(cities[0]));
+			cities.Add(MakeCity(player, "City 7"));
+			Assert.True(rule(cities[0]), ruleName);
 
-		// Not in the city with the center of the empire.
-		Building palace = MakeBuilding(new SaveBuilding {
-			name = "Palace",
-			flags = [SaveBuilding.Flag.IsCenterOfEmpire],
-		});
-		cities[0].constructed_buildings.Add(new CityBuilding { building = palace });
-		Assert.False(forbiddenPalaceRule(cities[0]));
-		Assert.True(forbiddenPalaceRule(cities[1]));
+			// More cities than that is fine too.
+			cities.Add(MakeCity(player, "City 8"));
+			Assert.True(rule(cities[0]), ruleName);
+
+			// Not in the city with the center of the empire.
+			Building palace = MakeBuilding(new SaveBuilding {
+				name = "Palace",
+				flags = [SaveBuilding.Flag.IsCenterOfEmpire],
+			});
+			cities[0].constructed_buildings.Add(new CityBuilding { building = palace });
+			Assert.False(rule(cities[0]), ruleName);
+			Assert.True(rule(cities[1]), ruleName);
+		}
 	}
 
 	[Fact]

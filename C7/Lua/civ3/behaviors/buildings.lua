@@ -33,6 +33,23 @@ buildings.production_rules = {
     return true
   end,
 
+  -- Duplicated logic for the Secret Police HQ, but written out as separate
+  -- method for moddability.
+  secret_police_hq = function(city)
+    local required_cities = math.floor(GAME_DATA().map.optimalNumberOfCities / 2)
+    if #city.owner.cities < required_cities then
+      return false
+    end
+
+    for _, city_building in ipairs(city:GetBuildings()) do
+      if city_building.building.isCenterOfEmpire then
+        return false
+      end
+    end
+
+    return true
+  end,
+
   -- Ocean doesn't count: the city needs a river, or a fresh water lake that it
   -- can work. A river on the city's own tile counts too.
   must_be_near_water = function(city)

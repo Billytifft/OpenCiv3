@@ -8149,7 +8149,7 @@
       "iconRowIndex": 6,
       "flags": [
         "reducesCorruption",
-        "resistantToBribery"
+        "resistantToPropaganda"
       ]
     },
     {
@@ -8656,7 +8656,7 @@
         "mustBeCoastal"
       ],
       "wonderFlags": [
-        "increasedTrade",
+        "increasedTradeInTilesProducingCommerce",
         "touristAttraction"
       ],
       "traits": [
@@ -8971,7 +8971,7 @@
       "maintenanceCost": 0,
       "iconRowIndex": 46,
       "wonderFlags": [
-        "reducedWarWeariness"
+        "reducesWarWearinessAllCities"
       ],
       "traits": [
         "agricultural"
@@ -9098,7 +9098,7 @@
       "maintenanceCost": 0,
       "iconRowIndex": 52,
       "wonderFlags": [
-        "doubleCityGrowth"
+        "cityGrowthPlusTwoCitizens"
       ],
       "traits": [
         "scientific"
@@ -9174,7 +9174,7 @@
       "maintenanceCost": 0,
       "iconRowIndex": 56,
       "wonderFlags": [
-        "forbiddenPalace"
+        "reducesCorruption"
       ],
       "traits": [
         "religious"
@@ -9661,10 +9661,10 @@
       "maintenanceCost": 0,
       "iconRowIndex": 56,
       "wonderFlags": [
-        "forbiddenPalace"
+        "reducesCorruption"
       ],
       "productionPrerequisites": [
-        "buildings.production_rules.forbidden_palace"
+        "buildings.production_rules.secret_police_hq"
       ]
     }
   ],
