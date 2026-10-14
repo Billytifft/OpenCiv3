@@ -219,8 +219,7 @@ public partial class Game : Node {
 	}
 
 	private void InitializeAudio() {
-		AudioManager audio = GetNode<AudioManager>("/root/GlobalAudioManager");
-		audio.StopMusic();
+		GlobalAudio.manager.StopMusic();
 		// TODO: switch to in-game playlist / music logic
 	}
 
@@ -262,6 +261,10 @@ public partial class Game : Node {
 				Util.setModPath(scenarioSearchPath);
 				log.Debug("RelativeModPath ", scenarioSearchPath);
 				return Util.Civ3MediaPath("Text/PediaIcons.txt");
+			},
+			GetCivilopediaTextPath = (scenarioSearchPath) => {
+				Util.setModPath(scenarioSearchPath);
+				return Util.Civ3MediaPath("Text/Civilopedia.txt");
 			},
 			GameModeLoader = (config) => {
 				Global.ActivateGameMode(config);
