@@ -239,6 +239,27 @@ public class FreeTechTest : IClassFixture<SaveGameFixture> {
 	}
 
 	[Fact]
+	public void ClaimingTheQueuedTechMakesTheNextQueuedTechCurrent() {
+		Player player = HumanPlayer();
+		Tech first = BasicTech();
+		Tech second = gameData.techs.First(t => t.id != first.id && t.Prerequisites.Count == 0);
+		player.freeTechsRemaining = 2;
+
+		player.CalculateFreshTechQueueAndAssignNewCurrent(first);
+		player.CalculateTechQueueAndAppendToCurrentQueue(second);
+
+		Assert.Equal(first.id, player.currentlyResearchedTech);
+
+		Assert.True(player.ClaimFreeTech(gameData, first));
+
+		Assert.Contains(first.id, player.knownTechs);
+		Assert.DoesNotContain(first, player.ResearchQueue);
+		Assert.Contains(second, player.ResearchQueue);
+		// The next tech in the queue should take over as the current research.
+		Assert.Equal(second.id, player.currentlyResearchedTech);
+	}
+
+	[Fact]
 	public void AvailableTechsAreOrderedCheapestFirst() {
 		Player player = HumanPlayer();
 		player.knownTechs.Clear();

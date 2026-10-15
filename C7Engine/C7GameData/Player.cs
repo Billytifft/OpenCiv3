@@ -852,6 +852,10 @@ namespace C7GameData {
 				SetCurrentlyResearchedTech(null);
 			}
 			RemoveTechsFromResearchQueue(t => knownTechs.Contains(t.id));
+
+			if (currentlyResearchedTech == null && ResearchQueue.Count > 0) {
+				SetCurrentlyResearchedTech(ResearchQueue.Peek().id);
+			}
 		}
 
 		private void CompleteResearchAndBeginNew(GameData gameData, Tech tech) {
