@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using C7.UIElements;
 using C7.UIElements.Popups;
 using static AdvisorHead;
 using static C7GameData.MapUnit;
