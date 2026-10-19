@@ -87,14 +87,7 @@ public partial class Game {
 
 		// TODO: add New Game option. This seems to do exactly the same as Retire in the original game
 
-		var preferencesBtn = new ButtonAction() {
-			message = "Preferences (Ctrl-P)",
-			action = () => {
-				popupOverlay.OnHidePopup();
-				OnOpenPreferences();
-			},
-		};
-		options.Add(preferencesBtn);
+		// TODO: add Preferences option
 
 		var retireBtn = new ButtonAction() {
 			message = "Retire",
