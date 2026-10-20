@@ -75,7 +75,11 @@ namespace C7Engine {
 		private const int MIN_TILES_PER_PLAYER_ISLAND = 81;
 
 		// The entry point to the overall map generation process.
-		public static GameMap GenerateMap(WorldCharacteristics wc) {
+		public static GameMap GenerateMap(WorldCharacteristics wc, int numberOfPlayers = -1) {
+			if (numberOfPlayers < 1) {
+				numberOfPlayers = wc.worldSize.numberOfCivs;
+			}
+
 			if (wc.mapSeed == -1) {
 				log.Information("Random seed is not specified, generating...");
 				wc.mapSeed = new Random().Next(int.MaxValue);
@@ -86,7 +90,7 @@ namespace C7Engine {
 			SanitizeWorldCharacteristics(wc);
 
 			// Step 1: generate the general shape of the terrain.
-			GameMap gameMap = GenerateTerrainShape(wc);
+			GameMap gameMap = GenerateTerrainShape(wc, numberOfPlayers);
 
 			// Step 2: ensure we have a proper continental shelf around each
 			// landmass, with land->coast->sea->ocean transitions.
@@ -128,7 +132,7 @@ namespace C7Engine {
 			// Step 10: Place player starting locations
 			// Placing this before barb camps so barbs don't spawn <5 tiles away from players
 			// Tried placing barbs then players, but caused all players to spawn together
-			DetermineStartingLocations(wc, gameMap);
+			DetermineStartingLocations(wc, gameMap, numberOfPlayers);
 
 			// Step 11: Add barb camps. We do this towards the end to make sure
 			// that we don't have barb camps on top of resources.
@@ -159,7 +163,7 @@ namespace C7Engine {
 			}
 		}
 
-		private static GameMap GenerateTerrainShape(WorldCharacteristics wc) {
+		private static GameMap GenerateTerrainShape(WorldCharacteristics wc, int numberOfPlayers) {
 			int width = wc.worldSize.width;
 			int height = wc.worldSize.height;
 			WorldCharacteristics.OceanCoverage oceanCoverage = wc.oceanCoverage;
@@ -174,7 +178,7 @@ namespace C7Engine {
 				HeightMap hm = new(seed: mapSeed + 0x1234 * attempt, width:width, height:height, scale:GetNoiseScale(landform));
 				GameMap m = ToLandAndWaterGameMap(wc, hm, oceanCoverage);
 
-				if (MapIsAcceptable(wc, m)) {
+				if (MapIsAcceptable(wc, m, numberOfPlayers)) {
 					stopwatch.Stop();
 					log.Information($"Map gen took {attempt} attempts and {stopwatch.ElapsedMilliseconds} milliseconds");
 					return m;
@@ -247,7 +251,7 @@ namespace C7Engine {
 			};
 		}
 
-		private static bool MapIsAcceptable(WorldCharacteristics wc, GameMap m) {
+		private static bool MapIsAcceptable(WorldCharacteristics wc, GameMap m, int numberOfPlayers) {
 			WorldCharacteristics.OceanCoverage oceanCoverage = wc.oceanCoverage;
 			WorldCharacteristics.Landform landform = wc.landform;
 			int totalTiles = m.tiles.Count;
@@ -304,7 +308,7 @@ namespace C7Engine {
 			if (landform == WorldCharacteristics.Landform.Archipelago) {
 				// Ensure that we have more land continents than players.
 				List<HashSet<Tile>> landContinents = m.continents.Where(x => x.First().IsLand()).ToList();
-				if (landContinents.Count < wc.worldSize.numberOfCivs * 1.2) {
+				if (landContinents.Count < numberOfPlayers * 1.2) {
 					return false;
 				}
 
@@ -316,7 +320,7 @@ namespace C7Engine {
 
 				// Give each player at least the minimum tiles number of . Make
 				// sure that we have enough islands for that.
-				int playersLeft = wc.worldSize.numberOfCivs;
+				int playersLeft = numberOfPlayers;
 				int islandsWithMultiplePlayers = 0;
 				foreach (var continent in landContinents) {
 					playersLeft -= continent.Count / MIN_TILES_PER_PLAYER_ISLAND;
@@ -329,7 +333,7 @@ namespace C7Engine {
 				}
 
 				// Make sure most players are by themselves on an island.
-				if (islandsWithMultiplePlayers > wc.worldSize.numberOfCivs * .4) {
+				if (islandsWithMultiplePlayers > numberOfPlayers * .4) {
 					return false;
 				}
 
@@ -1433,7 +1437,7 @@ namespace C7Engine {
 			return true;
 		}
 
-		private static void DetermineStartingLocations(WorldCharacteristics wc, GameMap m) {
+		private static void DetermineStartingLocations(WorldCharacteristics wc, GameMap m, int numberOfPlayers) {
 			Random rand = new(wc.mapSeed + 0x1337);
 			List<HashSet<Tile>> landContinents = m.continents.Where(x => x.First().IsLand()).ToList();
 
@@ -1462,9 +1466,9 @@ namespace C7Engine {
 			List<Tile> startingLocations = new();
 			Dictionary<int, int> continentStartingLocationCount = new();
 
-			for (int attempt = 0; attempt < 10 && startingLocations.Count < wc.worldSize.numberOfCivs; ++attempt) {
+			for (int attempt = 0; attempt < 10 && startingLocations.Count < numberOfPlayers; ++attempt) {
 				foreach (Tile t in orderedTiles) {
-					if (startingLocations.Count == wc.worldSize.numberOfCivs) {
+					if (startingLocations.Count == numberOfPlayers) {
 						break;
 					}
 
@@ -1494,7 +1498,7 @@ namespace C7Engine {
 				}
 			}
 
-			if (wc.worldSize.numberOfCivs > startingLocations.Count)
+			if (numberOfPlayers > startingLocations.Count)
 				log.Error("More civs than available starting locations.");
 
 			// Before using the starting locations, shuffle them, so that the

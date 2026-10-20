@@ -169,7 +169,7 @@ public partial class PlayerSetup : Control {
 				optionButton.AddItem(civ.name);
 			}
 
-			// Add (and default to) random for each opponent.
+			optionButton.AddItem("NONE");
 			optionButton.AddItem("Random");
 			optionButton.Select(popup.ItemCount - 1);
 
@@ -196,7 +196,7 @@ public partial class PlayerSetup : Control {
 			// of the previous option buttons has selected this civ.
 			if (civsTaken.Contains(selection)) {
 				ob.Select(ob.GetPopup().ItemCount - 1);
-			} else if (selection != "Random") {
+			} else if (selection != "Random" && selection != "NONE") {
 				civsTaken.Add(selection);
 			}
 
@@ -223,7 +223,9 @@ public partial class PlayerSetup : Control {
 		foreach (OptionButton ob in opponentSelectors) {
 			string selectedName = ob.GetItemText(ob.Selected);
 
-			if (selectedName == "Random") {
+			if (selectedName == "NONE") {
+				opponents.Add(new SelectedOpponent { isNone = true });
+			} else if (selectedName == "Random") {
 				opponents.Add(new SelectedOpponent { isRandom = true });
 			} else {
 				opponents.Add(new SelectedOpponent { isRandom = false, Name = selectedName });
@@ -234,6 +236,14 @@ public partial class PlayerSetup : Control {
 	}
 
 	private void CreateGame() {
+		List<SelectedOpponent> opponents = CollectSelectedOpponents();
+		if (!opponents.Any(o => !o.isNone)) {
+			loadingLabel.Text = "At least one rival is required.";
+			loadingLabel.Visible = true;
+			return;
+		}
+
+		loadingLabel.Text = "Loading...";
 		loadingLabel.Visible = true;
 
 		GlobalSingleton global = GetNode<GlobalSingleton>("/root/GlobalSingleton");
@@ -242,7 +252,7 @@ public partial class PlayerSetup : Control {
 			playerCivilization = selectedCivilization,
 			difficulty = selectedDifficulty,
 			worldCharacteristics = global.WorldCharacteristics,
-			opponents = CollectSelectedOpponents(),
+			opponents = opponents,
 			victoryConditions = victoryConditions
 		};
 
@@ -272,7 +282,7 @@ public partial class PlayerSetup : Control {
 			C7Settings.SetValue(C7Settings.LastGame.SectionName, C7Settings.LastGame.Difficulty, gameSetup.difficulty.Name);
 
 			List<SelectedOpponent> ops = gameSetup.opponents;
-			string opponentsValue = string.Join("|", ops.Select(o => o.isRandom ? "Random" : o.Name));
+			string opponentsValue = string.Join("|", ops.Select(o => o.isNone ? "NONE" : o.isRandom ? "Random" : o.Name));
 			C7Settings.SetValue(C7Settings.LastGame.SectionName, C7Settings.LastGame.Opponents, opponentsValue);
 
 			PersistVictoryConditions(gameSetup.victoryConditions);
