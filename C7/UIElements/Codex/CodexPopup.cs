@@ -6,12 +6,45 @@ using Godot;
 
 // The Codex (Civilopedia) popup, opened from the top-left toolbar.
 public partial class CodexPopup : Popup {
-	private const int WindowWidth = 1060;
-	private const int WindowHeight = 700;
-	private const int ContentMargin = 26;
-	private const int LeftPaneWidth = 250;
-	private const int IconSize = 64;
+	private const int WindowWidth = 1024;
+	private const int WindowHeight = 768;
+	// Regions measured from civilopediaBackground.pcx (1024x768).
+	private const int ContentInsetX = 12;
+	private const int MainLeft = 199 + ContentInsetX;
+	private const int MainRight = 671;
+	private const int MainWidth = MainRight - MainLeft;
+	// The art leaves the entry-title band transparent (x199..693); the name is inset to match the body.
+	private const int TitleLeft = 199;
+	private const int TitleTop = 71;
+	private const int TitleWidth = 693 - TitleLeft;
+	private const int TitleHeight = 28;
+	private const int BodyTop = 112;
+	private const int BodyHeight = 712 - BodyTop;
+	private const int SideLeft = 695;
+	private const int SideWidth = 128;
+	private const int IconTop = 60;
+	private const int IconSize = 128;
+	// Sections list is capped to the art's striped band between the icon and the tan area.
+	private const int SectionsHeight = 112;
+	// Entries list fills the art's light-tan area.
+	private const int EntriesHeight = 290;
+	private const int SideHeight = 744 - IconTop;
+	// Entry rows are indented inside their row, and the row itself is not resized.
+	private const int EntryTextInset = 6;
+	// Header spans the body column only, nudged down within the art's top band.
+	private const int HeaderLeft = MainLeft;
+	private const int HeaderTop = 22;
+	private const int HeaderWidth = MainWidth;
+	private const int HeaderHeight = 44;
+	// Gap between the title text and the nav arrows: 113 + 2 x 6px separation = ~125px.
+	private const int TitleToNavGap = 113;
+	private const int CloseButtonBottomGap = 17;
+	private const int CloseButtonShiftX = 6;
 	private const int BodyFontSize = 13;
+	// Parchment tone sampled next to the title cut-out, to fill the art's transparent title band.
+	private static readonly Color TitleBackgroundColor = Color.Color8(190, 178, 145);
+	// Draw outlines over the art regions to check alignment.
+	private static readonly bool ShowLayoutGuides = false;
 
 	private readonly Dictionary<CodexSection, Button> sectionButtons = new();
 	private VBoxContainer indexList;
@@ -21,6 +54,9 @@ public partial class CodexPopup : Popup {
 	private TextureRect icon;
 	private Label nameLabel;
 	private Label statLabel;
+
+	private static ImageTexture defaultIcon;
+
 	private HBoxContainer pager;
 	private Button prevPage;
 	private Button nextPage;
@@ -43,7 +79,9 @@ public partial class CodexPopup : Popup {
 		base._Ready();
 
 		AddTexture(WindowWidth, WindowHeight);
-		AddBackground(WindowWidth, WindowHeight);
+		if (!TrySetPediaBackground()) {
+			AddBackground(WindowWidth, WindowHeight);
+		}
 
 		EngineStorage.ReadGameData(BuildUi);
 	}
@@ -53,36 +91,80 @@ public partial class CodexPopup : Popup {
 			return;
 		}
 
-		MarginContainer root = new();
-		root.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-		root.AddThemeConstantOverride("margin_left", ContentMargin);
-		root.AddThemeConstantOverride("margin_top", ContentMargin);
-		root.AddThemeConstantOverride("margin_right", ContentMargin);
-		root.AddThemeConstantOverride("margin_bottom", ContentMargin);
-		AddChild(root);
+		HBoxContainer header = BuildHeader();
+		header.SetPosition(new Vector2(HeaderLeft, HeaderTop));
+		header.SetSize(new Vector2(HeaderWidth, HeaderHeight));
+		AddChild(header);
 
-		VBoxContainer column = new() {
-			SizeFlagsHorizontal = SizeFlags.ExpandFill,
-			SizeFlagsVertical = SizeFlags.ExpandFill,
-		};
-		column.AddThemeConstantOverride("separation", 8);
-		root.AddChild(column);
+		AddChild(BuildTitleRow());
 
-		column.AddChild(BuildHeader());
-		column.AddChild(new HSeparator());
+		VBoxContainer main = BuildMainPane();
+		main.SetPosition(new Vector2(MainLeft, BodyTop));
+		main.SetSize(new Vector2(MainWidth, BodyHeight));
+		AddChild(main);
 
-		HBoxContainer body = new() {
-			SizeFlagsHorizontal = SizeFlags.ExpandFill,
-			SizeFlagsVertical = SizeFlags.ExpandFill,
-		};
-		body.AddThemeConstantOverride("separation", 12);
-		column.AddChild(body);
+		VBoxContainer side = BuildSidePane(gameData);
+		side.SetPosition(new Vector2(SideLeft, IconTop));
+		side.SetSize(new Vector2(SideWidth, SideHeight));
+		AddChild(side);
 
-		body.AddChild(BuildLeftPane(gameData));
-		body.AddChild(new VSeparator());
-		body.AddChild(BuildRightPane());
+		if (ShowLayoutGuides) {
+			AddLayoutGuides();
+		}
 
 		SelectSection(gameData, CodexSection.Units);
+	}
+
+	private Control BuildTitleRow() {
+		Control row = new();
+		row.SetPosition(new Vector2(TitleLeft, TitleTop));
+		row.SetSize(new Vector2(TitleWidth, TitleHeight));
+
+		ColorRect background = new() { Color = TitleBackgroundColor };
+		background.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+		row.AddChild(background);
+
+		nameLabel = new Label {
+			VerticalAlignment = VerticalAlignment.Center,
+			ClipText = true,
+		};
+		nameLabel.AddThemeFontSizeOverride("font_size", 20);
+		nameLabel.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+		nameLabel.OffsetLeft = ContentInsetX;
+		row.AddChild(nameLabel);
+
+		return row;
+	}
+
+	private static ImageTexture DefaultIcon() {
+		// Keeps the icon square occupied (and the column from shifting up) when an entry has no art.
+		if (defaultIcon == null) {
+			Image image = Image.CreateEmpty(IconSize, IconSize, false, Image.Format.Rgba8);
+			image.Fill(TitleBackgroundColor);
+			defaultIcon = ImageTexture.CreateFromImage(image);
+		}
+		return defaultIcon;
+	}
+
+	private void AddLayoutGuides() {
+		AddGuide(HeaderLeft, HeaderTop, HeaderWidth, HeaderHeight);
+		AddGuide(TitleLeft, TitleTop, TitleWidth, TitleHeight);
+		AddGuide(MainLeft, BodyTop, MainWidth, BodyHeight);
+		AddGuide(SideLeft, IconTop, SideWidth, IconSize);
+		AddGuide(SideLeft, IconTop + IconSize, SideWidth, SectionsHeight);
+		AddGuide(SideLeft, IconTop + IconSize + SectionsHeight, SideWidth, EntriesHeight);
+	}
+
+	private void AddGuide(int x, int y, int width, int height) {
+		ReferenceRect guide = new() {
+			BorderColor = new Color(1, 0, 0),
+			BorderWidth = 1,
+			EditorOnly = false,
+			MouseFilter = MouseFilterEnum.Ignore,
+		};
+		guide.SetPosition(new Vector2(x, y));
+		guide.SetSize(new Vector2(width, height));
+		AddChild(guide);
 	}
 
 	private HBoxContainer BuildHeader() {
@@ -91,69 +173,90 @@ public partial class CodexPopup : Popup {
 		};
 		header.AddThemeConstantOverride("separation", 6);
 
-		header.AddChild(MakeTextButton("\u25c0", 14, () => { }, disabled: true, tooltip: "Back (coming soon)"));
-		header.AddChild(MakeTextButton("\u25b6", 14, () => { }, disabled: true, tooltip: "Forward (coming soon)"));
-
-		LineEdit search = new() {
-			PlaceholderText = "Search (coming soon)",
-			Editable = false,
-			CustomMinimumSize = new Vector2(220, 0),
-		};
-		header.AddChild(search);
-
-		header.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
-
 		Label title = new() { Text = "Codex" };
 		title.AddThemeFontSizeOverride("font_size", 24);
 		title.SizeFlagsVertical = SizeFlags.ShrinkCenter;
+		LineEdit search = new() {
+			PlaceholderText = "Search (coming soon)",
+			Editable = false,
+			CustomMinimumSize = new Vector2(150, 0),
+			SizeFlagsHorizontal = SizeFlags.ExpandFill,
+			SizeFlagsVertical = SizeFlags.ShrinkCenter,
+		};
+
 		header.AddChild(title);
-
-		header.AddChild(new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill });
-
-		TextureButton close = new();
-		TextureLoader.SetButtonTextures(close, "ui.exit");
-		close.Pressed += Close;
-		header.AddChild(close);
+		header.AddChild(new Control { CustomMinimumSize = new Vector2(TitleToNavGap, 0) });
+		header.AddChild(MakeTextButton("\u25c0", 14, () => { }, disabled: true, tooltip: "Back (coming soon)"));
+		header.AddChild(MakeTextButton("\u25b6", 14, () => { }, disabled: true, tooltip: "Forward (coming soon)"));
+		header.AddChild(search);
 
 		return header;
 	}
 
-	private VBoxContainer BuildLeftPane(GameData gameData) {
-		VBoxContainer left = new() {
-			CustomMinimumSize = new Vector2(LeftPaneWidth, 0),
-			SizeFlagsVertical = SizeFlags.ExpandFill,
+	private VBoxContainer BuildSidePane(GameData gameData) {
+		VBoxContainer right = new();
+		right.AddThemeConstantOverride("separation", 6);
+
+		// The icon fills the art's transparent top-right square.
+		Control iconWrap = new() {
+			CustomMinimumSize = new Vector2(IconSize, IconSize),
+			SizeFlagsHorizontal = SizeFlags.ShrinkBegin,
 		};
-		left.AddThemeConstantOverride("separation", 4);
+		// Draw a black backdrop so circular leader heads don't show parchment behind the square.
+		ColorRect iconBackdrop = new() {
+			Color = Colors.Black,
+		};
+		iconBackdrop.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+		iconWrap.AddChild(iconBackdrop);
+		icon = new TextureRect {
+			ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+			StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+		};
+		icon.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+		iconWrap.AddChild(icon);
+		right.AddChild(iconWrap);
 
 		Label sectionsTitle = new() { Text = "SECTIONS" };
 		sectionsTitle.AddThemeFontSizeOverride("font_size", 11);
-		left.AddChild(sectionsTitle);
+		right.AddChild(IndentLabel(sectionsTitle, EntryTextInset));
 
-		VBoxContainer sectionList = new();
+		// Capped and scrollable so the sections list stays in the art's striped band.
+		ScrollContainer sectionScroll = new() {
+			CustomMinimumSize = new Vector2(0, SectionsHeight),
+			SizeFlagsHorizontal = SizeFlags.ExpandFill,
+			HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
+		};
+		right.AddChild(sectionScroll);
+
+		VBoxContainer sectionList = new() {
+			SizeFlagsHorizontal = SizeFlags.ExpandFill,
+		};
 		sectionList.AddThemeConstantOverride("separation", 0);
-		left.AddChild(sectionList);
+		sectionScroll.AddChild(sectionList);
 
 		foreach (CodexSection section in CodexCatalog.SectionOrder) {
 			Button button = MakeTextButton(CodexCatalog.SectionTitle(section), 13, null);
 			button.Alignment = HorizontalAlignment.Left;
+			IndentButtonText(button, EntryTextInset);
 			CodexSection captured = section;
 			button.Pressed += () => SelectSection(gameData, captured);
 			sectionList.AddChild(button);
 			sectionButtons[section] = button;
 		}
 
-		left.AddChild(new HSeparator());
-
-		indexHeader = new Label();
+		indexHeader = new Label {
+			ClipText = true,
+			TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
+		};
 		indexHeader.AddThemeFontSizeOverride("font_size", 11);
-		left.AddChild(indexHeader);
+		right.AddChild(IndentLabel(indexHeader, EntryTextInset));
 
 		ScrollContainer scroll = new() {
+			CustomMinimumSize = new Vector2(0, EntriesHeight),
 			SizeFlagsHorizontal = SizeFlags.ExpandFill,
-			SizeFlagsVertical = SizeFlags.ExpandFill,
 			HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
 		};
-		left.AddChild(scroll);
+		right.AddChild(scroll);
 
 		indexList = new VBoxContainer {
 			SizeFlagsHorizontal = SizeFlags.ExpandFill,
@@ -161,45 +264,47 @@ public partial class CodexPopup : Popup {
 		indexList.AddThemeConstantOverride("separation", 0);
 		scroll.AddChild(indexList);
 
-		return left;
+		right.AddChild(new Control { SizeFlagsVertical = SizeFlags.ExpandFill });
+		right.AddChild(BuildCloseButton());
+
+		return right;
 	}
 
-	private VBoxContainer BuildRightPane() {
-		VBoxContainer right = new() {
+	private MarginContainer BuildCloseButton() {
+		MarginContainer wrap = new() {
 			SizeFlagsHorizontal = SizeFlags.ExpandFill,
-			SizeFlagsVertical = SizeFlags.ExpandFill,
 		};
-		right.AddThemeConstantOverride("separation", 6);
+		wrap.AddThemeConstantOverride("margin_bottom", CloseButtonBottomGap);
 
-		HBoxContainer header = new();
-		header.AddThemeConstantOverride("separation", 12);
-
-		icon = new TextureRect {
-			CustomMinimumSize = new Vector2(IconSize, IconSize),
-			ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-			StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-			SizeFlagsVertical = SizeFlags.ShrinkCenter,
+		HBoxContainer row = new() {
+			Alignment = BoxContainer.AlignmentMode.Center,
+			SizeFlagsHorizontal = SizeFlags.ExpandFill,
 		};
-		header.AddChild(icon);
 
-		nameLabel = new Label {
-			SizeFlagsVertical = SizeFlags.ShrinkCenter,
-		};
-		nameLabel.AddThemeFontSizeOverride("font_size", 22);
-		header.AddChild(nameLabel);
+		TextureButton close = new();
+		TextureLoader.SetButtonTextures(close, "ui.exit");
+		close.Pressed += Close;
+		row.AddChild(close);
+		// A trailing spacer nudges the centered button left within the column.
+		row.AddChild(new Control { CustomMinimumSize = new Vector2(CloseButtonShiftX * 2, 0) });
 
-		right.AddChild(header);
-		right.AddChild(new HSeparator());
+		wrap.AddChild(row);
+		return wrap;
+	}
+
+	private VBoxContainer BuildMainPane() {
+		VBoxContainer main = new();
+		main.AddThemeConstantOverride("separation", 6);
 
 		statLabel = new Label {
 			AutowrapMode = TextServer.AutowrapMode.Word,
 		};
 		statLabel.AddThemeFontSizeOverride("font_size", 13);
-		right.AddChild(statLabel);
-		right.AddChild(new HSeparator());
+		main.AddChild(statLabel);
+		main.AddChild(new HSeparator());
 
 		CreateArticleLabel();
-		right.AddChild(articleLabel);
+		main.AddChild(articleLabel);
 
 		pager = new HBoxContainer {
 			Alignment = BoxContainer.AlignmentMode.Center,
@@ -212,9 +317,9 @@ public partial class CodexPopup : Popup {
 		pager.AddChild(pageLabel);
 		nextPage = MakeTextButton("Next >", 13, () => ChangePage(1));
 		pager.AddChild(nextPage);
-		right.AddChild(pager);
+		main.AddChild(pager);
 
-		return right;
+		return main;
 	}
 
 	private void CreateArticleLabel() {
@@ -276,6 +381,7 @@ public partial class CodexPopup : Popup {
 			button.Alignment = HorizontalAlignment.Left;
 			button.ClipText = true;
 			button.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+			IndentButtonText(button, EntryTextInset);
 			CodexArticle captured = article;
 			button.Pressed += () => ShowArticle(captured);
 			indexList.AddChild(button);
@@ -291,8 +397,7 @@ public partial class CodexPopup : Popup {
 	private void ShowArticle(CodexArticle article) {
 		nameLabel.Text = string.IsNullOrEmpty(article.Name) ? "(unnamed)" : article.Name;
 
-		icon.Texture = article.Icon;
-		icon.Visible = article.Icon != null;
+		icon.Texture = article.Icon ?? DefaultIcon();
 
 		statLabel.Text = article.HasStats ? string.Join("\n", article.StatLines) : "";
 		statLabel.Visible = article.HasStats;
@@ -304,8 +409,7 @@ public partial class CodexPopup : Popup {
 
 	private void ClearArticle() {
 		nameLabel.Text = "";
-		icon.Texture = null;
-		icon.Visible = false;
+		icon.Texture = DefaultIcon();
 		statLabel.Text = "";
 		statLabel.Visible = false;
 		pages = new List<string>();
@@ -352,6 +456,7 @@ public partial class CodexPopup : Popup {
 			Text = text,
 			Disabled = disabled,
 			Flat = true,
+			SizeFlagsVertical = SizeFlags.ShrinkCenter,
 		};
 		button.AddThemeFontSizeOverride("font_size", fontSize);
 		if (tooltip != null) {
@@ -361,5 +466,47 @@ public partial class CodexPopup : Popup {
 			button.Pressed += onPressed;
 		}
 		return button;
+	}
+
+	private static void IndentButtonText(Button button, int left) {
+		// Shifts the text inside the row without changing the row's own size.
+		foreach (string state in new[] { "normal", "hover", "pressed", "focus", "disabled" }) {
+			if (button.GetThemeStylebox(state)?.Duplicate() is StyleBox style) {
+				style.ContentMarginLeft = left;
+				button.AddThemeStyleboxOverride(state, style);
+			}
+		}
+	}
+
+	private static MarginContainer IndentLabel(Label label, int left) {
+		MarginContainer wrap = new() { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+		wrap.AddThemeConstantOverride("margin_left", left);
+		wrap.AddChild(label);
+		return wrap;
+	}
+
+	private bool TrySetPediaBackground() {
+		try {
+			Godot.ImageTexture bg = TextureLoader.Load("civilopedia_screen.background");
+			if (bg == null) {
+				return false;
+			}
+
+			// The parchment art is 1024x768 with transparent margins; draw it scaled to
+			// fit the popup without distortion (letterboxed if needed).
+			TextureRect background = new TextureRect {
+				Texture = bg,
+				ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+				StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+				SizeFlagsHorizontal = SizeFlags.ExpandFill,
+				SizeFlagsVertical = SizeFlags.ExpandFill,
+			};
+			background.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+			AddChild(background);
+			MoveChild(background, 0);
+			return true;
+		} catch (Exception) {
+			return false;
+		}
 	}
 }

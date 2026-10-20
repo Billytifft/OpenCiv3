@@ -51,6 +51,7 @@ namespace C7GameData {
 		public TimeOptions timeOptions;
 		public Dictionary<string, List<HistTurnRecord>> history;
 		public Codex Codex;
+		public PediaIcons pediaIcons;
 
 		public VictoryConditions victoryConditions;
 		public List<IVictory> victories = new();

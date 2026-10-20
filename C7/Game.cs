@@ -284,6 +284,12 @@ public partial class Game : Node {
 		// Civilopedia text, and legacy imports only populate it when a scenario
 		// search path is present. Load it here so the Codex always has prose.
 		EngineStorage.ReadGameData((GameData gameData) => {
+			try {
+				gameData.pediaIcons ??= new PediaIcons(options.GetPediaIconsPath(gameData.scenarioSearchPath ?? ""));
+			} catch (Exception ex) {
+				log.Warning(ex, "Could not locate the PediaIcons file; the Codex will fall back to in-game icons");
+			}
+
 			if (gameData.Codex is { Entries.Count: > 0 }) {
 				return;
 			}

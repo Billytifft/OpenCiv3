@@ -134,7 +134,8 @@ public static class CodexCatalog {
 			}
 
 			CodexArticle article = NewArticle(gameData, building.civilopediaEntry, building.name);
-			article.Icon = TryLoad(() => TextureLoader.Load("building_icons.large", building, useCache: true));
+			article.Icon = TryLoad(() => LoadPediaIcon(gameData, building.civilopediaEntry)
+				?? TextureLoader.Load("building_icons.large", building, useCache: true));
 
 			if (building.shieldCost > 0) article.StatLines.Add($"Cost: {building.shieldCost} shields");
 			if (building.maintenanceCost > 0) article.StatLines.Add($"Maintenance: {building.maintenanceCost} gold/turn");
@@ -165,7 +166,8 @@ public static class CodexCatalog {
 			}
 
 			CodexArticle article = NewArticle(gameData, tech.CivilopediaEntry, tech.Name);
-			article.Icon = TryLoad(() => TextureLoader.Load("tech_icons.small", tech, useCache: true));
+			article.Icon = TryLoad(() => LoadPediaIcon(gameData, tech.CivilopediaEntry)
+				?? TextureLoader.Load("tech_icons.small", tech, useCache: true));
 
 			if (tech.Cost > 0) article.StatLines.Add($"Cost: {tech.Cost} beakers");
 			if (!string.IsNullOrEmpty(tech.EraCivilopediaName)) article.StatLines.Add($"Era: {PrettifyKey(tech.EraCivilopediaName, "ERA_")}");
@@ -261,7 +263,8 @@ public static class CodexCatalog {
 			}
 
 			CodexArticle article = NewArticle(gameData, resource.CivilopediaEntry, resource.Name);
-			article.Icon = TryLoad(() => TextureLoader.Load("resources.large", resource, useCache: true));
+			article.Icon = TryLoad(() => LoadPediaIcon(gameData, resource.CivilopediaEntry)
+				?? TextureLoader.Load("resources.large", resource, useCache: true));
 
 			article.StatLines.Add($"Category: {PrettifyCategory(resource.Category)}");
 			if (resource.FoodBonus != 0) article.StatLines.Add($"Food bonus: +{resource.FoodBonus}");
@@ -351,6 +354,25 @@ public static class CodexCatalog {
 			// Missing or modded icon art; the Codex renders without an icon.
 			return null;
 		}
+	}
+
+	// Loads the entry's Civilopedia icon from PediaIcons.txt, which points at
+	// the full size icon art instead of the small in-game icons.
+	private static ImageTexture LoadPediaIcon(GameData gameData, string civilopediaEntry) {
+		PediaIcons pediaIcons = gameData.pediaIcons ?? ResolvePediaIcons(gameData);
+		string path = pediaIcons?.GetCivilopediaIconPath(civilopediaEntry)
+			?? pediaIcons?.GetTechCivilopediaIconPath(civilopediaEntry);
+		return string.IsNullOrEmpty(path) ? null : TextureLoader.LoadByPath(path);
+	}
+
+	private static PediaIcons ResolvePediaIcons(GameData gameData) {
+		try {
+			Util.setModPath(gameData.scenarioSearchPath ?? "");
+			gameData.pediaIcons = new PediaIcons(Util.Civ3MediaPath("Text/PediaIcons.txt"));
+		} catch (Exception) {
+			gameData.pediaIcons = new PediaIcons(null);
+		}
+		return gameData.pediaIcons;
 	}
 
 	private static string Join(IEnumerable<string> values) {
