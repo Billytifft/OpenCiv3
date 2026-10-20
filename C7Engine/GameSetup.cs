@@ -9,6 +9,7 @@ namespace C7Engine;
 
 public struct SelectedOpponent {
 	public bool isRandom;
+	public bool isNone;
 	public string Name;
 }
 
@@ -21,6 +22,9 @@ public class GameSetup {
 	public List<SelectedOpponent> opponents { get; init; } = [];
 	public VictoryConditions victoryConditions { get; set; }
 
+	// When false, starts are generated for the map's max civ count, not actual players.
+	public bool spreadPlayersEvenly { get; init; } = false;
+
 	ID.Factory ids;
 
 	public void Populate(SaveGame save) {
@@ -29,8 +33,10 @@ public class GameSetup {
 		save.VictoryConditions = victoryConditions;
 
 		if (save.Map.tiles.Count == 0) {
+			int numberOfPlayers = 1 + opponents.Count(o => !o.isNone);
+			int numberOfStartingLocations = spreadPlayersEvenly ? numberOfPlayers : -1;
 			log.Information("Starting map generation");
-			save.Map = new SaveMap(MapGenerator.GenerateMap(worldCharacteristics));
+			save.Map = new SaveMap(MapGenerator.GenerateMap(worldCharacteristics, numberOfStartingLocations));
 			save.Seed = worldCharacteristics.mapSeed;
 			log.Information("Done with map generation");
 		}
@@ -59,6 +65,10 @@ public class GameSetup {
 		taken.Add(this.playerCivilization.name);
 
 		foreach (SelectedOpponent opponent in opponents) {
+			if (opponent.isNone) {
+				continue;
+			}
+
 			bool isRandom = opponent.isRandom;
 			string selectedName = opponent.Name;
 
