@@ -86,7 +86,11 @@ public partial class Game {
 
 		// TODO: add New Game option. This seems to do exactly the same as Retire in the original game
 
-		// TODO: add Preferences option
+		var preferencesBtn = new ButtonAction() {
+			message = "Preferences (Ctrl-P)",
+			action = () => OnOpenPreferences(),
+		};
+		options.Add(preferencesBtn);
 
 		var retireBtn = new ButtonAction() {
 			message = "Retire",
@@ -673,8 +677,14 @@ public partial class Game {
 		};
 		options.Add(showGridBtn);
 
+		var backBtn = new ButtonAction() {
+			message = "Back",
+			action = () => EmitGameMainMenuSignal(),
+		};
+		options.Add(backBtn);
+
 		EmitSignal(SignalName.InteractivePopUp, new ParameterWrapper<InteractablePopUp>(
-			new MapMenuPopUp(
+			new OptionsPopUp(
 				controller.id,
 				"Map Options",
 				null,
