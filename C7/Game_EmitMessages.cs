@@ -47,8 +47,7 @@ public partial class Game {
 
 			var techs = sbt.ToString();
 
-			// TODO: make this dynamic, it's in the civ data
-			var king = "[b]Caesar[/b]";
+			var king = $"[b]{controller.civilization.leader}[/b]";
 
 			message = $"It is the year {year}. Your ancestors were nomads. " +
 					  $"But over the generations your people have learned the secrets of [i]farming," +
