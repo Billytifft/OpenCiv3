@@ -309,7 +309,7 @@ namespace C7GameData {
 			// use a higher upper bound.
 			int refuseContactUntilTurn = currentTurn + new Random().Next(5, isSneakAttack ? 16 : 12);
 
-			DeclareWar(this, other, isSneakAttack, refuseContactUntilTurn);
+			DeclareWar(this, other, isSneakAttack, currentTurn, refuseContactUntilTurn);
 
 			// Whenever war is declared, re-evaluate priorities.
 			turnsUntilPriorityReevaluation = 0;
@@ -561,6 +561,8 @@ namespace C7GameData {
 					AddTechItemToResearchQueue(t);
 				}
 			}
+			if (currentlyResearchedTech == null)
+				SetCurrentlyResearchedTech(ResearchQueue.Peek().id);
 		}
 
 		/// <summary>
@@ -1136,7 +1138,7 @@ namespace C7GameData {
 			Difficulty difficulty = EngineStorage.gameData.gameDifficulty;
 			float costFactor = isHuman ? 1.0f : difficulty.AiCostFactor / (float)(difficulty.HumanCostFactor);
 
-			return producible.ShieldCost(civilization.traits, costFactor);
+			return producible.ShieldCost(this, costFactor);
 		}
 
 		public void UpdateHistory(GameData gameData) {

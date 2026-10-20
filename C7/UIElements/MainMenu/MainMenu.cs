@@ -16,20 +16,33 @@ public partial class MainMenu : Node {
 	Civ3FileDialog LoadScenarioDialog;
 	[Export]
 	MenuButtonContainer ButtonContainer;
+	[Export]
+	Preferences preferences;
 
 	GlobalSingleton Global;
-	AudioManager AudioManager;
+
+	public override void _EnterTree() {
+		GlobalAudio.manager = GetNode<AudioManager>("/root/GlobalAudioManager");
+
+		base._EnterTree();
+	}
 
 	public override void _Ready() {
 		log = LogManager.ForContext<MainMenu>();
 		log.Debug("enter MainMenu._Ready");
 
+		// Log where we're loading data from and whether the original
+		// Civilization III media was found. This makes path-related problems
+		// (missing C7.ini, an unset civ3InstallDir) diagnosable from the log
+		// instead of only showing up as missing or placeholder graphics.
+		log.Information("Data dir: {GameDir}; settings: {SettingsFile}; civ3 install: {Civ3Root}; standalone media: {Standalone}, classic media available: {Classic}",
+			GamePaths.BaseDir, C7Settings.SettingsFilePath, Util.Civ3Root,
+			C7Settings.UseStandaloneMode(), ClassicGraphicsAvailable());
+
 		DisplayServer.WindowSetTitle((string)ProjectSettings.GetSetting("application/config/name"));
 
 		try {
 			DisplayTitleScreen();
-
-			AudioManager = GetNode<AudioManager>("/root/GlobalAudioManager");
 			PlayMusic();
 		} catch (Exception ex) {
 			log.Error(ex, "Could not set up the main menu");
@@ -63,10 +76,7 @@ public partial class MainMenu : Node {
 		ButtonContainer.LoadScenario.Pressed += LoadScenario;
 		ButtonContainer.HallOfFame.Pressed += HallOfFame;
 		ButtonContainer.HallOfFame.Visible = false;
-		ButtonContainer.Preferences.Pressed += Preferences;
-		ButtonContainer.Preferences.Visible = false;
-		ButtonContainer.AudioPreferences.Pressed += Preferences;
-		ButtonContainer.AudioPreferences.Visible = false;
+		ButtonContainer.Preferences.Pressed += ShowPreferences;
 		ButtonContainer.Credits.Pressed += showCredits;
 		ButtonContainer.Exit.Pressed += _on_Exit_pressed;
 
@@ -142,8 +152,9 @@ public partial class MainMenu : Node {
 		PlayButtonPressedSound();
 	}
 
-	public void Preferences() {
+	public void ShowPreferences() {
 		PlayButtonPressedSound();
+		preferences.ShowPreferences();
 	}
 
 	public void _on_Exit_pressed() {
@@ -168,10 +179,10 @@ public partial class MainMenu : Node {
 	}
 
 	private void PlayMusic() {
-		AudioManager.PlayMusic("menu.main_menu_1");
+		GlobalAudio.manager.PlayMusic("menu.main_menu_1");
 	}
 
 	private void PlayButtonPressedSound() {
-		AudioManager.PlayUIAudio("buttons.button_1");
+		GlobalAudio.manager.PlayUIAudio("buttons.button_1");
 	}
 }

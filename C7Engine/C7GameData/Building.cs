@@ -15,6 +15,7 @@ namespace C7GameData {
 		}
 
 		public string name { get; set; }
+		public string civilopediaEntry { get; set; }
 		public int shieldCost { get; set; }
 		public int populationCost { get; set; } // Will always be equal to 0 in the Civ3 rule set
 
@@ -68,6 +69,7 @@ namespace C7GameData {
 			dataSource = building;
 
 			name = building.name;
+			civilopediaEntry = building.civilopediaEntry;
 			shieldCost = building.shieldCost;
 			populationCost = building.populationCost;
 			isSmallWonder = building.isSmallWonder;
@@ -158,13 +160,29 @@ namespace C7GameData {
 			return true;
 		}
 
-		public int ShieldCost(HashSet<Civilization.Trait> civTraits, float costFactor) {
+		public int ShieldCost(Player player, float costFactor) {
+
+			float costAdj = 1.0f;
+
+			// Adjust cost if civilization has building trait exactly once
 			foreach (Civilization.Trait trait in dataSource.traits) {
-				if (civTraits.Contains(trait)) {
-					return (int)(shieldCost * EngineStorage.gameData.rules.BuildingDiscountForCivTraits * costFactor);
+				if (player.civilization.traits.Contains(trait)) {
+					costAdj *= EngineStorage.gameData.rules.BuildingDiscountForCivTraits;
+					break;
 				}
 			}
-			return (int)(shieldCost * costFactor);
+
+			// Special case building cost formula for center-of-empire buildings
+			// Hardcoded to match Civ 3 Conquests values
+			// TODO: Make configurable and expose via Lua instead of hardcoding values
+			if (this.isCenterOfEmpire) {
+				int centerOfEmpireFactor = 6 * player.cities.Count / EngineStorage.gameData.map.optimalNumberOfCities;
+				centerOfEmpireFactor = Math.Clamp(centerOfEmpireFactor, 3, 10);
+				costAdj *= centerOfEmpireFactor;
+			}
+
+			// Round final cost in case of floating point drift causing truncation
+			return (int)Math.Round(shieldCost * costFactor * costAdj);
 		}
 
 		public bool isGreatWonderObsolete(Player owner) {
