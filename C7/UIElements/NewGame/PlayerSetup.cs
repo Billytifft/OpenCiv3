@@ -169,8 +169,8 @@ public partial class PlayerSetup : Control {
 				optionButton.AddItem(civ.name);
 			}
 
-			optionButton.AddItem("NONE");
-			optionButton.AddItem("Random");
+			optionButton.AddItem(SelectedOpponent.NONE);
+			optionButton.AddItem(SelectedOpponent.RANDOM);
 			optionButton.Select(popup.ItemCount - 1);
 
 			for (int k = 0; k < popup.ItemCount; ++k) {
@@ -196,7 +196,7 @@ public partial class PlayerSetup : Control {
 			// of the previous option buttons has selected this civ.
 			if (civsTaken.Contains(selection)) {
 				ob.Select(ob.GetPopup().ItemCount - 1);
-			} else if (selection != "Random" && selection != "NONE") {
+			} else if (selection != SelectedOpponent.RANDOM && selection != SelectedOpponent.NONE) {
 				civsTaken.Add(selection);
 			}
 
@@ -223,13 +223,11 @@ public partial class PlayerSetup : Control {
 		foreach (OptionButton ob in opponentSelectors) {
 			string selectedName = ob.GetItemText(ob.Selected);
 
-			if (selectedName == "NONE") {
-				opponents.Add(new SelectedOpponent { isNone = true });
-			} else if (selectedName == "Random") {
-				opponents.Add(new SelectedOpponent { isRandom = true });
-			} else {
-				opponents.Add(new SelectedOpponent { isRandom = false, Name = selectedName });
-			}
+			opponents.Add(selectedName switch {
+				SelectedOpponent.NONE => new SelectedOpponent { isNone = true },
+				SelectedOpponent.RANDOM => new SelectedOpponent { isRandom = true },
+				_ => new SelectedOpponent { Name = selectedName },
+			});
 		}
 
 		return opponents;
@@ -282,7 +280,11 @@ public partial class PlayerSetup : Control {
 			C7Settings.SetValue(C7Settings.LastGame.SectionName, C7Settings.LastGame.Difficulty, gameSetup.difficulty.Name);
 
 			List<SelectedOpponent> ops = gameSetup.opponents;
-			string opponentsValue = string.Join("|", ops.Select(o => o.isNone ? "NONE" : o.isRandom ? "Random" : o.Name));
+			string opponentsValue = string.Join("|", ops.Select(o => o switch {
+				{ isNone: true } => SelectedOpponent.NONE,
+				{ isRandom: true } => SelectedOpponent.RANDOM,
+				_ => o.Name
+			}));
 			C7Settings.SetValue(C7Settings.LastGame.SectionName, C7Settings.LastGame.Opponents, opponentsValue);
 
 			PersistVictoryConditions(gameSetup.victoryConditions);

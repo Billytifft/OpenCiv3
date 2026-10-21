@@ -110,11 +110,11 @@ public partial class QuickStartSetup : Node {
 	}
 
 	private static SelectedOpponent ToSelectedOpponent(string name, List<Civilization> availableCivs) {
-		if (name == "NONE") {
+		if (name == SelectedOpponent.NONE) {
 			return new SelectedOpponent { isNone = true };
 		}
 
-		if (name == "Random" || availableCivs.All(c => c.name != name)) {
+		if (name == SelectedOpponent.RANDOM || availableCivs.All(c => c.name != name)) {
 			return new SelectedOpponent { isRandom = true };
 		}
 
