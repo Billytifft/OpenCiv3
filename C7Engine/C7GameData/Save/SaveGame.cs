@@ -329,6 +329,7 @@ namespace C7GameData.Save {
 
 			var buildingDict = data.Buildings.ToDictionary(b => b.name);
 			var techDict = data.techs.ToDictionary(t => t.id);
+			var govDict = data.governments.ToDictionary(g => g.id);
 			var resDict = data.Resources.ToDictionary(r => r.Key);
 
 			foreach (SaveBuilding saveBuilding in Buildings) {
@@ -341,6 +342,9 @@ namespace C7GameData.Save {
 				if (saveBuilding.requiredTech != null) {
 					building.requiredTech = techDict[saveBuilding.requiredTech];
 				}
+				if (saveBuilding.requiredGovernment != null) {
+					building.requiredGovernment = govDict[saveBuilding.requiredGovernment];
+				}
 				if (saveBuilding.renderedObsoleteBy != null) {
 					building.renderedObsoleteBy = techDict[saveBuilding.renderedObsoleteBy];
 				}
@@ -349,6 +353,9 @@ namespace C7GameData.Save {
 				}
 				if (saveBuilding.greatWonderProperties?.buildingGainedInEveryCityOnContinent?.Length > 0) {
 					building.greatWonderProperties.buildingGainedInEveryCityOnContinent = buildingDict[saveBuilding.greatWonderProperties.buildingGainedInEveryCityOnContinent];
+				}
+				if (saveBuilding.greatWonderProperties?.buildingWithDoubledHappiness?.Length > 0) {
+					building.greatWonderProperties.buildingWithDoubledHappiness = buildingDict[saveBuilding.greatWonderProperties.buildingWithDoubledHappiness];
 				}
 
 				building.requiredResources = saveBuilding.requiredResources.Select(a => resDict[a]).ToHashSet();
@@ -362,6 +369,15 @@ namespace C7GameData.Save {
 			var unitPrototypeDict = data.unitPrototypes.ToDictionary(b => b.name);
 			var civDict = data.civilizations.ToDictionary(c => c.name);
 			var resDict = data.Resources.ToDictionary(r => r.Key);
+
+			// Buildings are converted before unit prototypes exist, so resolve
+			// the units they produce here.
+			var buildingDict = data.Buildings.ToDictionary(b => b.name);
+			foreach (SaveBuilding saveBuilding in Buildings) {
+				if (saveBuilding.unitProduced != null) {
+					buildingDict[saveBuilding.name].unitProduced = unitPrototypeDict[saveBuilding.unitProduced];
+				}
+			}
 
 			foreach (SaveUnitPrototype saveProto in UnitPrototypes) {
 				UnitPrototype proto = unitPrototypeDict[saveProto.name];
