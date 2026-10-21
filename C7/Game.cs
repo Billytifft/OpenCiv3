@@ -1014,7 +1014,7 @@ public partial class Game : Node {
 		Godot.Collections.Array<StringName> actions = InputMap.GetActions();
 
 		foreach (StringName action in actions) {
-			if (Input.IsActionJustPressed(action)) {
+			if (Input.IsActionJustPressed(action, exactMatch: true)) {
 				ProcessAction(action.ToString());
 			} else if (Input.IsActionJustReleased(action)) {
 				ProcessOnReleaseAction(action.ToString());
@@ -1111,6 +1111,21 @@ public partial class Game : Node {
 
 		// never poll for actions if UI elements are visible
 		if (HasVisibleModal()) {
+			return;
+		}
+
+		if (currentAction == C7Action.SaveGame) {
+			OnSaveGame();
+			return;
+		}
+
+		if (currentAction == C7Action.LoadGame) {
+			OnLoadGame();
+			return;
+		}
+
+		if (currentAction == C7Action.Retire) {
+			EmitRetireConfirmationSignal();
 			return;
 		}
 
