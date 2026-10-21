@@ -935,9 +935,6 @@ public partial class Game : Node {
 				mapView.centerCameraOnTile(capital.location);
 			}
 		}
-		if (eventKeyDown.Keycode == Godot.Key.M && eventKeyDown.IsCommandOrControlPressed()) {
-			ProcessAction(C7Action.OpenGameMenu);
-		}
 		// For inputs that have the same keys mapped to multiple actions like G
 		// we need to manually handle what is triggered by adding extra conditions.
 		// Otherwise when pressing CTRL + G for example, both the go-to
@@ -1056,10 +1053,6 @@ public partial class Game : Node {
 			return;
 		}
 
-		if (currentAction == C7Action.OpenGameMenu) {
-			EmitGameMainMenuSignal();
-		}
-
 		if (currentAction == C7Action.Escape && tileInfo != null) {
 			HideTileInfo();
 			return;
@@ -1111,6 +1104,11 @@ public partial class Game : Node {
 
 		// never poll for actions if UI elements are visible
 		if (HasVisibleModal()) {
+			return;
+		}
+
+		if (currentAction == C7Action.OpenGameMenu) {
+			EmitGameMainMenuSignal();
 			return;
 		}
 
