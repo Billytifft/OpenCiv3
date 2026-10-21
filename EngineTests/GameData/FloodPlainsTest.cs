@@ -142,7 +142,7 @@ public class FloodPlainsTest : MapBase, IClassFixture<SaveGameFixture> {
 			mapSeed = 123456,
 		};
 
-		GameMap m = MapGenerator.GenerateMap(wc);
+		GameMap m = MapGenerator.GenerateMap(wc, wc.worldSize.numberOfCivs);
 
 		foreach (Tile t in m.tiles) {
 			if (!t.IsLand()) {
