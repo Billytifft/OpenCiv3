@@ -8,6 +8,9 @@ using Serilog;
 namespace C7Engine;
 
 public struct SelectedOpponent {
+	public const string NONE = "NONE";
+	public const string RANDOM = "Random";
+
 	public bool isRandom;
 	public bool isNone;
 	public string Name;
@@ -34,7 +37,9 @@ public class GameSetup {
 
 		if (save.Map.tiles.Count == 0) {
 			int numberOfPlayers = 1 + opponents.Count(o => !o.isNone);
-			int numberOfStartingLocations = spreadPlayersEvenly ? numberOfPlayers : -1;
+			int numberOfStartingLocations = spreadPlayersEvenly
+				? numberOfPlayers
+				: worldCharacteristics.worldSize.numberOfCivs;
 			log.Information("Starting map generation");
 			save.Map = new SaveMap(MapGenerator.GenerateMap(worldCharacteristics, numberOfStartingLocations));
 			save.Seed = worldCharacteristics.mapSeed;

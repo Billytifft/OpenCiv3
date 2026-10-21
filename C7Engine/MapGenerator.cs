@@ -75,11 +75,7 @@ namespace C7Engine {
 		private const int MIN_TILES_PER_PLAYER_ISLAND = 81;
 
 		// The entry point to the overall map generation process.
-		public static GameMap GenerateMap(WorldCharacteristics wc, int numberOfPlayers = -1) {
-			if (numberOfPlayers < 1) {
-				numberOfPlayers = wc.worldSize.numberOfCivs;
-			}
-
+		public static GameMap GenerateMap(WorldCharacteristics wc, int numberOfPlayers) {
 			if (wc.mapSeed == -1) {
 				log.Information("Random seed is not specified, generating...");
 				wc.mapSeed = new Random().Next(int.MaxValue);
