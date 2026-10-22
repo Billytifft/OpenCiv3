@@ -25,9 +25,6 @@ public class GameSetup {
 	public List<SelectedOpponent> opponents { get; init; } = [];
 	public VictoryConditions victoryConditions { get; set; }
 
-	// When false, starts are generated for the map's max civ count, not actual players.
-	public bool spreadPlayersEvenly { get; init; } = false;
-
 	ID.Factory ids;
 
 	public void Populate(SaveGame save) {
@@ -36,12 +33,8 @@ public class GameSetup {
 		save.VictoryConditions = victoryConditions;
 
 		if (save.Map.tiles.Count == 0) {
-			int numberOfPlayers = 1 + opponents.Count(o => !o.isNone);
-			int numberOfStartingLocations = spreadPlayersEvenly
-				? numberOfPlayers
-				: worldCharacteristics.worldSize.numberOfCivs;
 			log.Information("Starting map generation");
-			save.Map = new SaveMap(MapGenerator.GenerateMap(worldCharacteristics, numberOfStartingLocations));
+			save.Map = new SaveMap(MapGenerator.GenerateMap(worldCharacteristics));
 			save.Seed = worldCharacteristics.mapSeed;
 			log.Information("Done with map generation");
 		}

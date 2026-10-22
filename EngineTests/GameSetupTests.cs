@@ -38,10 +38,8 @@ public class GameSetupTests {
 		return (save, wc);
 	}
 
-	[Theory]
-	[InlineData(true, 2)]
-	[InlineData(false, 4)]
-	public void NoneOpponentsDoNotBecomePlayers(bool spreadPlayersEvenly, int expectedStartingLocations) {
+	[Fact]
+	public void NoneOpponentsDoNotBecomePlayers() {
 		(SaveGame save, WorldCharacteristics wc) = CreateTestWorld();
 
 		GameSetup gameSetup = new() {
@@ -53,7 +51,6 @@ public class GameSetupTests {
 				new SelectedOpponent { isRandom = true },
 				new SelectedOpponent { isNone = true },
 			],
-			spreadPlayersEvenly = spreadPlayersEvenly,
 			victoryConditions = new VictoryConditions()
 		};
 
@@ -64,16 +61,13 @@ public class GameSetupTests {
 		string barbarianCiv = save.Civilizations.First(c => c.isBarbarian).name;
 		Assert.Equal(2, save.Players.Count(p => p.civilization != barbarianCiv));
 
-		// Starting locations are generated for the players in the game when
-		// spread evenly, or for the map's maximum civ count otherwise.
-		Assert.Equal(expectedStartingLocations, save.Map.startingLocations.Count);
+		// Starts are generated for the map's maximum civ count.
+		Assert.Equal(wc.worldSize.numberOfCivs, save.Map.startingLocations.Count);
 	}
 
 	// All NONE rivals means a solo game: only the barbarian and the human.
-	[Theory]
-	[InlineData(true, 1)]
-	[InlineData(false, 4)]
-	public void AllNoneOpponentsMakeSoloGame(bool spreadPlayersEvenly, int expectedStartingLocations) {
+	[Fact]
+	public void AllNoneOpponentsMakeSoloGame() {
 		(SaveGame save, WorldCharacteristics wc) = CreateTestWorld();
 
 		GameSetup gameSetup = new() {
@@ -85,7 +79,6 @@ public class GameSetupTests {
 				new SelectedOpponent { isNone = true },
 				new SelectedOpponent { isNone = true },
 			],
-			spreadPlayersEvenly = spreadPlayersEvenly,
 			victoryConditions = new VictoryConditions()
 		};
 
@@ -95,7 +88,8 @@ public class GameSetupTests {
 		string barbarianCiv = save.Civilizations.First(c => c.isBarbarian).name;
 		Assert.Equal(1, save.Players.Count(p => p.civilization != barbarianCiv));
 
-		Assert.Equal(expectedStartingLocations, save.Map.startingLocations.Count);
+		// Starts are generated for the map's maximum civ count.
+		Assert.Equal(wc.worldSize.numberOfCivs, save.Map.startingLocations.Count);
 	}
 
 	private static readonly List<Civilization> availableCivs = [
